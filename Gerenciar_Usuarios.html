@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerenciar Usuários — Net Turbo</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--gd:#8CBF3F;--gl:#f4f9ec;--red:#c0392b;--bdr:#d4ddd8;--r:6px;--g50:#f7f8fa;--g100:#eef0f3;--g300:#d0d5dd;--g500:#6b7585;--g800:#2d3444}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#ecf0eb;color:var(--g800);font-size:14px;padding:0 0 60px}
+.fhd{background:var(--gd);padding:20px 32px;display:flex;align-items:center;gap:16px}
+.fhd h1{font-size:20px;font-weight:700;color:#fff;margin-bottom:2px}
+.fhd p{font-size:12px;color:rgba(255,255,255,.65)}
+.wrap{max-width:860px;margin:28px auto;padding:0 16px}
+
+/* FORM CARD */
+.card{background:#fff;border-radius:10px;border:1px solid var(--bdr);overflow:hidden;box-shadow:0 2px 8px rgba(26,92,55,.07);margin-bottom:22px}
+.card-hd{padding:14px 20px;border-bottom:1px solid var(--bdr);font-size:13px;font-weight:700;display:flex;justify-content:space-between;align-items:center}
+.card-body{padding:20px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr}}
+.fld label{display:block;font-size:10px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.fld input{width:100%;padding:9px 12px;border:1.5px solid var(--bdr);border-radius:var(--r);font-size:13px;font-family:inherit;outline:none}
+.fld input:focus{border-color:var(--gd);box-shadow:0 0 0 3px rgba(140,191,63,.15)}
+.fld input.err{border-color:var(--red)}
+.form-actions{margin-top:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{padding:9px 20px;border:none;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.btn:disabled{opacity:.5;cursor:default}
+.btn-primary{background:var(--gd);color:#fff}
+.btn-ghost{background:var(--g100);color:var(--g800)}
+.btn-danger{background:var(--red);color:#fff;padding:6px 14px;font-size:12px}
+.btn-warn{background:#e07b00;color:#fff;padding:6px 14px;font-size:12px}
+
+/* ALERT */
+.alert{padding:10px 14px;border-radius:6px;font-size:12px;margin-bottom:14px;display:none}
+.alert.show{display:block}
+.alert-ok{background:#f0fae0;border:1px solid #c8dda8;color:#5a8a1a}
+.alert-err{background:#fde;border:1px solid #f5b8b8;color:#c0392b}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:500px}
+th{background:var(--gl);padding:9px 14px;font-size:10px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.5px;text-align:left;border-bottom:1px solid var(--bdr)}
+td{padding:11px 14px;font-size:13px;border-bottom:1px solid var(--g100);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--g50)}
+.tag{display:inline-block;padding:3px 10px;border-radius:10px;font-size:10px;font-weight:700}
+.tag-ok{background:#f0fae0;color:#5a8a1a;border:1px solid #c8dda8}
+.tag-off{background:#fde;color:#c0392b;border:1px solid #f5b8b8}
+.spin-wrap{padding:32px;text-align:center;color:var(--g500)}
+.spinner{width:28px;height:28px;border:3px solid var(--g100);border-top-color:var(--gd);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{padding:32px;text-align:center;color:var(--g500);font-size:13px}
+.hint{font-size:11px;color:var(--g500);margin-top:4px}
+</style>
+</head>
+<body>
+
+<div class="fhd">
+  <div>
+    <h1>👤 Gerenciar Usuários</h1>
+    <p>Controle de acesso ao Preenchimento LPU</p>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- CRIAR USUÁRIO -->
+  <div class="card">
+    <div class="card-hd">Novo Usuário</div>
+    <div class="card-body">
+      <div class="alert alert-ok" id="alert-ok"></div>
+      <div class="alert alert-err" id="alert-err"></div>
+      <div class="form-grid">
+        <div class="fld">
+          <label>Nome completo</label>
+          <input type="text" id="inp-nome" placeholder="Ex: João Silva">
+        </div>
+        <div class="fld">
+          <label>Usuário (login)</label>
+          <input type="text" id="inp-usuario" placeholder="Ex: joao.silva" autocapitalize="none">
+          <div class="hint">Sem espaços, sem acento</div>
+        </div>
+        <div class="fld">
+          <label>Senha</label>
+          <input type="password" id="inp-senha" placeholder="Mínimo 6 caracteres">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-primary" id="btn-criar" onclick="criarUsuario()">+ Criar Usuário</button>
+        <button class="btn btn-ghost" onclick="limparForm()">Limpar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LISTA -->
+  <div class="card">
+    <div class="card-hd">
+      <span>Usuários Cadastrados</span>
+      <small id="count-lbl" style="font-size:11px;color:var(--g500);font-weight:400"></small>
+    </div>
+    <div class="tbl-wrap">
+      <div id="table-wrap"><div class="spin-wrap"><div class="spinner"></div><p>Carregando...</p></div></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const SUPABASE_URL = localStorage.getItem('sb_url') || 'https://awbehzomxcsbasgltlih.supabase.co';
+const SUPABASE_KEY = localStorage.getItem('sb_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF3YmVoem9teGNzYmFzZ2x0bGloIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5ODUyMjYsImV4cCI6MjA5NTU2MTIyNn0.9zuX49pdzjdehf8pyuRxYm1QPcqHgAWoKyVYXdohLDY';
+
+async function sha256(str){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+function showOk(msg){const el=document.getElementById('alert-ok');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),4000);}
+function showErr(msg){const el=document.getElementById('alert-err');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),5000);}
+
+window.addEventListener('load', loadUsuarios);
+
+/* ── CRIAR ── */
+async function criarUsuario(){
+  const nome    = document.getElementById('inp-nome').value.trim();
+  const usuario = document.getElementById('inp-usuario').value.trim().toLowerCase();
+  const senha   = document.getElementById('inp-senha').value;
+
+  if(!nome||!usuario||!senha){showErr('Preencha todos os campos.');return;}
+  if(senha.length < 6){showErr('Senha deve ter pelo menos 6 caracteres.');return;}
+  if(/\s/.test(usuario)){showErr('Usuário não pode ter espaços.');return;}
+
+  const btn = document.getElementById('btn-criar');
+  btn.disabled=true;btn.textContent='Criando...';
+  try{
+    const hash = await sha256(senha);
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/usuarios`,{
+      method:'POST',
+      headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json','Prefer':'return=minimal'},
+      body:JSON.stringify({nome,usuario,senha_hash:hash,ativo:true})
+    });
+    if(!res.ok){
+      const e=await res.text();
+      if(e.includes('unique')) throw new Error('Esse usuário já existe.');
+      throw new Error('Erro ao criar: '+e);
+    }
+    showOk(`✔ Usuário "${usuario}" criado com sucesso!`);
+    limparForm();
+    loadUsuarios();
+  }catch(e){showErr(e.message);}
+  finally{btn.disabled=false;btn.textContent='+ Criar Usuário';}
+}
+
+function limparForm(){
+  document.getElementById('inp-nome').value='';
+  document.getElementById('inp-usuario').value='';
+  document.getElementById('inp-senha').value='';
+}
+
+/* ── LISTAR ── */
+async function loadUsuarios(){
+  document.getElementById('table-wrap').innerHTML='<div class="spin-wrap"><div class="spinner"></div><p>Carregando...</p></div>';
+  try{
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/usuarios?select=*&order=criado_em.desc`,{
+      headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}
+    });
+    if(!res.ok) throw new Error('Erro ao carregar.');
+    const data = await res.json();
+    document.getElementById('count-lbl').textContent=`${data.length} usuário${data.length!==1?'s':''}`;
+    if(!data.length){document.getElementById('table-wrap').innerHTML='<div class="empty">Nenhum usuário cadastrado ainda.</div>';return;}
+    const rows = data.map(u=>`<tr>
+      <td><strong>${esc(u.nome)}</strong></td>
+      <td style="font-family:monospace;font-size:12px">${esc(u.usuario)}</td>
+      <td>${u.ativo?'<span class="tag tag-ok">Ativo</span>':'<span class="tag tag-off">Inativo</span>'}</td>
+      <td style="font-size:11px;color:var(--g500)">${new Date(u.criado_em).toLocaleDateString('pt-BR')}</td>
+      <td style="display:flex;gap:6px;flex-wrap:wrap">
+        ${u.ativo
+          ? `<button class="btn btn-warn" onclick="toggleAtivo('${u.id}',false)">Desativar</button>`
+          : `<button class="btn btn-primary" style="padding:6px 14px;font-size:12px" onclick="toggleAtivo('${u.id}',true)">Ativar</button>`}
+        <button class="btn btn-ghost" style="padding:6px 14px;font-size:12px" onclick="resetSenha('${u.id}','${esc(u.usuario)}')">Redefinir Senha</button>
+        <button class="btn btn-danger" onclick="deletarUsuario('${u.id}','${esc(u.usuario)}')">Excluir</button>
+      </td>
+    </tr>`).join('');
+    document.getElementById('table-wrap').innerHTML=`<table>
+      <thead><tr><th>Nome</th><th>Usuário</th><th>Status</th><th>Criado em</th><th>Ações</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  }catch(e){document.getElementById('table-wrap').innerHTML=`<div class="empty" style="color:var(--red)">${e.message}</div>`;}
+}
+
+/* ── TOGGLE ATIVO ── */
+async function toggleAtivo(id, ativo){
+  await fetch(`${SUPABASE_URL}/rest/v1/usuarios?id=eq.${id}`,{
+    method:'PATCH',
+    headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'},
+    body:JSON.stringify({ativo})
+  });
+  loadUsuarios();
+}
+
+/* ── RESETAR SENHA ── */
+async function resetSenha(id, usuario){
+  const nova = prompt(`Nova senha para "${usuario}":`);
+  if(!nova) return;
+  if(nova.length < 6){alert('Senha deve ter pelo menos 6 caracteres.');return;}
+  const hash = await sha256(nova);
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/usuarios?id=eq.${id}`,{
+    method:'PATCH',
+    headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/json'},
+    body:JSON.stringify({senha_hash:hash})
+  });
+  if(res.ok) showOk(`Senha de "${usuario}" redefinida com sucesso!`);
+  else showErr('Erro ao redefinir senha.');
+}
+
+/* ── DELETAR ── */
+async function deletarUsuario(id, usuario){
+  if(!confirm(`Excluir o usuário "${usuario}"? Essa ação não pode ser desfeita.`)) return;
+  await fetch(`${SUPABASE_URL}/rest/v1/usuarios?id=eq.${id}`,{
+    method:'DELETE',
+    headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}
+  });
+  showOk(`Usuário "${usuario}" excluído.`);
+  loadUsuarios();
+}
+
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+</script>
+</body>
+</html>
