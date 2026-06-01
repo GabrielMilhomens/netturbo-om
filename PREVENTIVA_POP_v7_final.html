@@ -201,7 +201,7 @@ textarea{resize:vertical;min-height:60px}
           <label for="int-bk-nao">✔ Não, tudo conforme</label>
         </div>
         <div class="int-detail" id="int-bk-detail">
-          <textarea id="f-det-banco" placeholder="Descreva o que foi feito (ex: troca de 4 baterias 12V/7Ah, limpeza de terminais oxidados)..." rows="2"></textarea>
+          <textarea id="f-det-banco" placeholder="Descreva o que foi feito (ex: troca de 4 baterias 12V/105Ah, limpeza de terminais oxidados)..." rows="2"></textarea>
         </div>
       </div>
       <div class="nav-buttons"><button class="btn btng btn-lg" onclick="goStep(3)">&#8592; Voltar</button><button class="btn btnp btn-lg" onclick="goStep(5)">Próxima Sessão &#8594;</button></div>
@@ -245,7 +245,7 @@ textarea{resize:vertical;min-height:60px}
         <div class="agend-desc" id="agend-desc">
           <div class="fld" style="margin-top:8px">
             <label>Descreva o que precisa ser agendado e a urgência</label>
-            <textarea id="f-agendamento" rows="3" placeholder="Ex: Substituição do AR condicionado com defeito — urgência alta. Nobreak com bateria vencida — médio prazo..."></textarea>
+            <textarea id="f-agendamento" rows="3" placeholder="Ex: Fechadura quebrada, infiltração no POP, fonte de equipamento sem funcionar"></textarea>
           </div>
         </div>
       </div>
@@ -295,8 +295,8 @@ async function uploadToSupabase(blob,pop,cidade,dataISO,fileName,observacoes,tec
 }
 
 const INSPECTIONS = {
-  eletrica:{scoreId:'score-eletrica',containerId:'grp-eletrica',title:'Inspeção Elétrica',items:[{q:"Tensão de entrada AC está dentro da faixa nominal?",ref:"Ref: 110V/220V ±10%",hasVal:true,valLabel:"Tensão medida"},{q:"Disjuntores estão identificados e em bom estado?",ref:"",hasVal:false},{q:"Aterramento está em conformidade?",ref:"",hasVal:true,valLabel:"Valor medido (Ω)"},{q:"Fontes estão operacionais e sem alarmes críticos?",ref:"",hasVal:false},{q:"Conectores em bom estado?",ref:"",hasVal:false}]},
-  equip:{scoreId:'score-equip',containerId:'grp-equip',title:'Inspeção dos Equipamentos',items:[{q:"OLT está operacional, sem alarmes críticos?",ref:"",hasVal:false},{q:"Switch/Router está operacional, sem alarmes?",ref:"",hasVal:false},{q:"LEDs de status dos equipamentos estão normais?",ref:"",hasVal:false},{q:"Temperatura dos equipamentos está dentro do limite?",ref:"",hasVal:true,valLabel:"Temp. medida (°C)"},{q:"Cabos de rede e cordões organizados e identificados?",ref:"",hasVal:false},{q:"Fans dos equipamentos funcionando?",ref:"",hasVal:false}]},
+  eletrica:{scoreId:'score-eletrica',containerId:'grp-eletrica',title:'Inspeção Elétrica',items:[{q:"Tensão de entrada AC",ref:"Ref: 127V/220V ",hasVal:true,valLabel:"Tensão medida"},{q:"Realizar reaperto das conexões dos disjuntores, DPS e barramentos",ref:"",hasVal:false},{q:"Aterramento está em conformidade?",ref:"",hasVal:true,valLabel:"Valor medido (Ω)"},{q:"Fontes dos equipamentos operacionais",ref:"",hasVal:false},{q:"Conectores em bom estado?",ref:"",hasVal:false}]},
+  equip:{scoreId:'score-equip',containerId:'grp-equip',title:'Inspeção dos Equipamentos',items:[{q:"OLT está operacional, sem alarmes críticos?",ref:"",hasVal:false},{q:"Switch/Router está operacional, sem alarmes?",ref:"",hasVal:false},{q:"LEDs de status dos equipamentos estão normais?",ref:"",hasVal:false},{q:"Temperatura dos equipamentos está dentro do limite?",ref:"",hasVal:true,valLabel:"Temp. medida (°C)"},{q:"Cabos de rede e cordões organizados e identificados?",ref:"",hasVal:false},{q:"Fans dos equipamentos funcionando corretamente e sem obstruções",ref:"",hasVal:false}]},
   banco:{scoreId:'score-banco',containerId:'grp-banco',title:'Inspeção do Banco de Baterias',items:[{q:"Tensão do banco de baterias está em conformidade?",ref:"Ref: conforme fabricante",hasVal:true,valLabel:"Tensão (V)"},{q:"Baterias em bom estado?",ref:"",hasVal:false},{q:"Terminais das baterias estão limpos e sem oxidação?",ref:"",hasVal:false},{q:"Cabos do banco estão em bom estado?",ref:"",hasVal:false},{q:"Autonomia do banco está dentro do esperado?",ref:"",hasVal:true,valLabel:"Autonomia estimada"},{q:"Data de validade das baterias verificada?",ref:"",hasVal:false},{q:"Consumo DC das baterias está em conformidade?",ref:"",hasVal:true,valLabel:"Consumo AC medido"}]},
   ambiente:{scoreId:'score-ambiente',containerId:'grp-ambiente',title:'Inspeção do Ambiente',items:[{q:"Ar condicionado está funcionando corretamente?",ref:"",hasVal:true,valLabel:"Temp. ambiente (°C)"},{q:"Ambiente está limpo e sem acúmulo de poeira?",ref:"",hasVal:false},{q:"Rack/armário está organizado e identificado?",ref:"",hasVal:false},{q:"Iluminação do ambiente está funcional?",ref:"",hasVal:false},{q:"Porta do POP está com fechadura funcional?",ref:"",hasVal:false},{q:"Extintor de incêndio dentro da validade?",ref:"",hasVal:false},{q:"Há sinais de infiltração ou umidade excessiva?",ref:"",hasVal:false}]}
 };
