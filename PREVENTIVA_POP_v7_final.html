@@ -201,7 +201,7 @@ textarea{resize:vertical;min-height:60px}
           <label for="int-bk-nao">✔ Não, tudo conforme</label>
         </div>
         <div class="int-detail" id="int-bk-detail">
-          <textarea id="f-det-banco" placeholder="Descreva o que foi feito (ex: troca de 4 baterias 12V/105Ah, limpeza de terminais oxidados)..." rows="2"></textarea>
+          <textarea id="f-det-banco" placeholder="Descreva o que foi feito (ex: troca de 4 baterias 12V/7Ah, limpeza de terminais oxidados)..." rows="2"></textarea>
         </div>
       </div>
       <div class="nav-buttons"><button class="btn btng btn-lg" onclick="goStep(3)">&#8592; Voltar</button><button class="btn btnp btn-lg" onclick="goStep(5)">Próxima Sessão &#8594;</button></div>
@@ -245,7 +245,7 @@ textarea{resize:vertical;min-height:60px}
         <div class="agend-desc" id="agend-desc">
           <div class="fld" style="margin-top:8px">
             <label>Descreva o que precisa ser agendado e a urgência</label>
-            <textarea id="f-agendamento" rows="3" placeholder="Ex: Fechadura quebrada, infiltração no POP, fonte de equipamento sem funcionar"></textarea>
+            <textarea id="f-agendamento" rows="3" placeholder="Ex: Substituição do AR condicionado com defeito — urgência alta. Nobreak com bateria vencida — médio prazo..."></textarea>
           </div>
         </div>
       </div>
@@ -295,8 +295,8 @@ async function uploadToSupabase(blob,pop,cidade,dataISO,fileName,observacoes,tec
 }
 
 const INSPECTIONS = {
-  eletrica:{scoreId:'score-eletrica',containerId:'grp-eletrica',title:'Inspeção Elétrica',items:[{q:"Tensão de entrada AC",ref:"Ref: 127V/220V ",hasVal:true,valLabel:"Tensão medida"},{q:"Realizar reaperto das conexões dos disjuntores, DPS e barramentos",ref:"",hasVal:false},{q:"Aterramento está em conformidade?",ref:"",hasVal:true,valLabel:"Valor medido (Ω)"},{q:"Fontes dos equipamentos operacionais",ref:"",hasVal:false},{q:"Conectores em bom estado?",ref:"",hasVal:false}]},
-  equip:{scoreId:'score-equip',containerId:'grp-equip',title:'Inspeção dos Equipamentos',items:[{q:"OLT está operacional, sem alarmes críticos?",ref:"",hasVal:false},{q:"Switch/Router está operacional, sem alarmes?",ref:"",hasVal:false},{q:"LEDs de status dos equipamentos estão normais?",ref:"",hasVal:false},{q:"Temperatura dos equipamentos está dentro do limite?",ref:"",hasVal:true,valLabel:"Temp. medida (°C)"},{q:"Cabos de rede e cordões organizados e identificados?",ref:"",hasVal:false},{q:"Fans dos equipamentos funcionando corretamente e sem obstruções",ref:"",hasVal:false}]},
+  eletrica:{scoreId:'score-eletrica',containerId:'grp-eletrica',title:'Inspeção Elétrica',items:[{q:"Tensão de entrada AC está dentro da faixa nominal?",ref:"Ref: 110V/220V ±10%",hasVal:true,valLabel:"Tensão medida"},{q:"Disjuntores estão identificados e em bom estado?",ref:"",hasVal:false},{q:"Aterramento está em conformidade?",ref:"",hasVal:true,valLabel:"Valor medido (Ω)"},{q:"Fontes estão operacionais e sem alarmes críticos?",ref:"",hasVal:false},{q:"Conectores em bom estado?",ref:"",hasVal:false}]},
+  equip:{scoreId:'score-equip',containerId:'grp-equip',title:'Inspeção dos Equipamentos',items:[{q:"OLT está operacional, sem alarmes críticos?",ref:"",hasVal:false},{q:"Switch/Router está operacional, sem alarmes?",ref:"",hasVal:false},{q:"LEDs de status dos equipamentos estão normais?",ref:"",hasVal:false},{q:"Temperatura dos equipamentos está dentro do limite?",ref:"",hasVal:true,valLabel:"Temp. medida (°C)"},{q:"Cabos de rede e cordões organizados e identificados?",ref:"",hasVal:false},{q:"Fans dos equipamentos funcionando?",ref:"",hasVal:false}]},
   banco:{scoreId:'score-banco',containerId:'grp-banco',title:'Inspeção do Banco de Baterias',items:[{q:"Tensão do banco de baterias está em conformidade?",ref:"Ref: conforme fabricante",hasVal:true,valLabel:"Tensão (V)"},{q:"Baterias em bom estado?",ref:"",hasVal:false},{q:"Terminais das baterias estão limpos e sem oxidação?",ref:"",hasVal:false},{q:"Cabos do banco estão em bom estado?",ref:"",hasVal:false},{q:"Autonomia do banco está dentro do esperado?",ref:"",hasVal:true,valLabel:"Autonomia estimada"},{q:"Data de validade das baterias verificada?",ref:"",hasVal:false},{q:"Consumo DC das baterias está em conformidade?",ref:"",hasVal:true,valLabel:"Consumo AC medido"}]},
   ambiente:{scoreId:'score-ambiente',containerId:'grp-ambiente',title:'Inspeção do Ambiente',items:[{q:"Ar condicionado está funcionando corretamente?",ref:"",hasVal:true,valLabel:"Temp. ambiente (°C)"},{q:"Ambiente está limpo e sem acúmulo de poeira?",ref:"",hasVal:false},{q:"Rack/armário está organizado e identificado?",ref:"",hasVal:false},{q:"Iluminação do ambiente está funcional?",ref:"",hasVal:false},{q:"Porta do POP está com fechadura funcional?",ref:"",hasVal:false},{q:"Extintor de incêndio dentro da validade?",ref:"",hasVal:false},{q:"Há sinais de infiltração ou umidade excessiva?",ref:"",hasVal:false}]}
 };
@@ -375,20 +375,27 @@ function buildDocElement(){
   body.appendChild(t1);
   // Intervention summary
   const intEl=getRadioVal('int-eletrica'),intEq=getRadioVal('int-equip'),intBk=getRadioVal('int-banco'),intAm=getRadioVal('int-ambiente');
-  const hasIntervencoes=intEl==='sim'||intEq==='sim'||intBk==='sim'||intAm==='sim';
-  if(hasIntervencoes){
-    body.appendChild(secBar('Resumo de Intervenções Realizadas'));
-    const intMap=[['Elétrica',intEl,'f-det-eletrica'],['Equipamentos',intEq,'f-det-equip'],['Banco de Baterias',intBk,'f-det-banco'],['Ambiente',intAm,'f-det-ambiente']];
-    const intDiv=document.createElement('div');intDiv.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px';
-    intMap.forEach(([label,val])=>{const chip=document.createElement('span');chip.style.cssText=`padding:4px 12px;border-radius:12px;font-size:11px;font-weight:700;border:1px solid;${val==='sim'?'background:#fff3cd;color:#856404;border-color:#ffe082':'background:#f0fae0;color:#5a8a1a;border-color:#c8dda8'}`;chip.textContent=(val==='sim'?'⚠ ':'✔ ')+label;intDiv.appendChild(chip);});
-    body.appendChild(intDiv);
-    // Detail rows
-    intMap.filter(([,val])=>val==='sim').forEach(([label,,detId])=>{
-      const detEl=document.getElementById(detId);
-      const detVal=detEl&&detEl.value.trim();
-      if(detVal){const row=document.createElement('div');row.style.cssText='border-left:3px solid #e07b00;padding:5px 10px;margin-bottom:6px;font-size:11px;color:#1a1a1a;background:#fffdf0';row.innerHTML=`<strong style="color:#7a4f00">${label}:</strong> ${detVal}`;body.appendChild(row);}
-    });
-  }
+  // ── RESUMO DE INTERVENÇÕES (sempre exibido)
+  body.appendChild(secBar('Resumo de Intervenções por Sessão'));
+  const intMap=[
+    ['⚡ Inspeção Elétrica', intEl, 'f-det-eletrica'],
+    ['🖥 Inspeção de Equipamentos', intEq, 'f-det-equip'],
+    ['🔋 Banco de Baterias', intBk, 'f-det-banco'],
+    ['🏠 Inspeção do Ambiente', intAm, 'f-det-ambiente']
+  ];
+  const intTbl=document.createElement('table');
+  intTbl.style.cssText='width:100%;border-collapse:collapse;margin-bottom:14px;font-size:11px';
+  let intRows='<tr style="background:#f4f9ec"><th style="text-align:left;padding:6px 10px;border:1px solid #e8efe0;font-size:9px;width:45%">SESSÃO</th><th style="padding:6px 10px;border:1px solid #e8efe0;font-size:9px;width:18%">STATUS</th><th style="padding:6px 10px;border:1px solid #e8efe0;font-size:9px">DESCRIÇÃO</th></tr>';
+  intMap.forEach(([label, val, detId], i)=>{
+    const detEl=document.getElementById(detId);
+    const detVal=detEl&&detEl.value.trim()?detEl.value.trim():'—';
+    const statusColor=val==='sim'?'#e07b00':'#8CBF3F';
+    const statusText=val==='sim'?'⚠ Houve intervenção':'✔ Sem intervenção';
+    const bg=i%2===0?'#fff':'#fafafa';
+    intRows+=`<tr style="background:${bg}"><td style="padding:6px 10px;border:1px solid #e8efe0;font-weight:600">${label}</td><td style="padding:6px 10px;border:1px solid #e8efe0;color:${statusColor};font-weight:700;text-align:center">${statusText}</td><td style="padding:6px 10px;border:1px solid #e8efe0;color:#444">${val==='sim'?detVal:'—'}</td></tr>`;
+  });
+  intTbl.innerHTML=intRows;
+  body.appendChild(intTbl);
   Object.keys(INSPECTIONS).forEach(key=>{
     const grp=INSPECTIONS[key];const scoreEl=document.getElementById(grp.scoreId);
     body.appendChild(secBar(grp.title+' (Pontuação: '+scoreEl.textContent+')'));
