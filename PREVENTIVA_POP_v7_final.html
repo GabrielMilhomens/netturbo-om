@@ -164,6 +164,20 @@ textarea{resize:vertical;min-height:60px}
           <textarea id="f-det-eletrica" placeholder="Descreva o que foi substituído ou reparado (ex: disjuntor 20A, fonte de alimentação OLT)..." rows="2"></textarea>
         </div>
       </div>
+      <div class="agend-question" style="margin-top:10px">
+        <div class="agend-q"><span class="aq-ico">📅</span>Há necessidade de agendamento relacionado à parte elétrica desta inspeção?</div>
+        <div class="aq-toggle">
+          <input type="radio" name="agend-eletrica" id="agend-el-sim" value="sim" onchange="toggleAgendDetail('agend-el-detail',true)">
+          <label for="agend-el-sim">🔴 Sim, agendar</label>
+          <input type="radio" name="agend-eletrica" id="agend-el-nao" value="nao" checked onchange="toggleAgendDetail('agend-el-detail',false)">
+          <label for="agend-el-nao">✔ Não</label>
+        </div>
+        <div class="agend-desc" id="agend-el-detail">
+          <div class="fld" style="margin-top:8px">
+            <textarea id="f-agend-eletrica" rows="2" placeholder="Descreva o que precisa ser agendado e a urgência..."></textarea>
+          </div>
+        </div>
+      </div>
       <div class="nav-buttons"><button class="btn btng btn-lg" onclick="goStep(1)">&#8592; Voltar</button><button class="btn btnp btn-lg" onclick="goStep(3)">Próxima Sessão &#8594;</button></div>
     </div>
 
@@ -182,6 +196,20 @@ textarea{resize:vertical;min-height:60px}
         </div>
         <div class="int-detail" id="int-eq-detail">
           <textarea id="f-det-equip" placeholder="Descreva o equipamento substituído/reparado (ex: SFP da OLT, módulo de fan)..." rows="2"></textarea>
+        </div>
+      </div>
+      <div class="agend-question" style="margin-top:10px">
+        <div class="agend-q"><span class="aq-ico">📅</span>Há necessidade de agendamento relacionado a equipamentos desta inspeção?</div>
+        <div class="aq-toggle">
+          <input type="radio" name="agend-equip" id="agend-eq-sim" value="sim" onchange="toggleAgendDetail('agend-eq-detail',true)">
+          <label for="agend-eq-sim">🔴 Sim, agendar</label>
+          <input type="radio" name="agend-equip" id="agend-eq-nao" value="nao" checked onchange="toggleAgendDetail('agend-eq-detail',false)">
+          <label for="agend-eq-nao">✔ Não</label>
+        </div>
+        <div class="agend-desc" id="agend-eq-detail">
+          <div class="fld" style="margin-top:8px">
+            <textarea id="f-agend-equip" rows="2" placeholder="Descreva o que precisa ser agendado e a urgência..."></textarea>
+          </div>
         </div>
       </div>
       <div class="nav-buttons"><button class="btn btng btn-lg" onclick="goStep(2)">&#8592; Voltar</button><button class="btn btnp btn-lg" onclick="goStep(4)">Próxima Sessão &#8594;</button></div>
@@ -204,6 +232,20 @@ textarea{resize:vertical;min-height:60px}
           <textarea id="f-det-banco" placeholder="Descreva o que foi feito (ex: troca de 4 baterias 12V/7Ah, limpeza de terminais oxidados)..." rows="2"></textarea>
         </div>
       </div>
+      <div class="agend-question" style="margin-top:10px">
+        <div class="agend-q"><span class="aq-ico">📅</span>Há necessidade de agendamento relacionado ao banco de baterias desta inspeção?</div>
+        <div class="aq-toggle">
+          <input type="radio" name="agend-banco" id="agend-bk-sim" value="sim" onchange="toggleAgendDetail('agend-bk-detail',true)">
+          <label for="agend-bk-sim">🔴 Sim, agendar</label>
+          <input type="radio" name="agend-banco" id="agend-bk-nao" value="nao" checked onchange="toggleAgendDetail('agend-bk-detail',false)">
+          <label for="agend-bk-nao">✔ Não</label>
+        </div>
+        <div class="agend-desc" id="agend-bk-detail">
+          <div class="fld" style="margin-top:8px">
+            <textarea id="f-agend-banco" rows="2" placeholder="Descreva o que precisa ser agendado e a urgência..."></textarea>
+          </div>
+        </div>
+      </div>
       <div class="nav-buttons"><button class="btn btng btn-lg" onclick="goStep(3)">&#8592; Voltar</button><button class="btn btnp btn-lg" onclick="goStep(5)">Próxima Sessão &#8594;</button></div>
     </div>
 
@@ -222,6 +264,20 @@ textarea{resize:vertical;min-height:60px}
         </div>
         <div class="int-detail" id="int-am-detail">
           <textarea id="f-det-ambiente" placeholder="Descreva o que foi corrigido/melhorado (ex: limpeza de poeira nos racks, ajuste da temperatura do AC)..." rows="2"></textarea>
+        </div>
+      </div>
+      <div class="agend-question" style="margin-top:10px">
+        <div class="agend-q"><span class="aq-ico">📅</span>Há necessidade de agendamento relacionado ao ambiente do POP desta inspeção?</div>
+        <div class="aq-toggle">
+          <input type="radio" name="agend-ambiente" id="agend-am-sim" value="sim" onchange="toggleAgendDetail('agend-am-detail',true)">
+          <label for="agend-am-sim">🔴 Sim, agendar</label>
+          <input type="radio" name="agend-ambiente" id="agend-am-nao" value="nao" checked onchange="toggleAgendDetail('agend-am-detail',false)">
+          <label for="agend-am-nao">✔ Não</label>
+        </div>
+        <div class="agend-desc" id="agend-am-detail">
+          <div class="fld" style="margin-top:8px">
+            <textarea id="f-agend-ambiente" rows="2" placeholder="Descreva o que precisa ser agendado e a urgência..."></textarea>
+          </div>
         </div>
       </div>
       <div class="nav-buttons"><button class="btn btng btn-lg" onclick="goStep(4)">&#8592; Voltar</button><button class="btn btnp btn-lg" onclick="goStep(6)">Próxima Sessão &#8594;</button></div>
@@ -275,6 +331,10 @@ function toggleIntDetail(id, show){
   document.getElementById(id).style.display = show ? 'block' : 'none';
 }
 
+function toggleAgendDetail(id, show){
+  document.getElementById(id).style.display = show ? 'block' : 'none';
+}
+
 function showToast(msg,type='success'){
   const t=document.createElement('div');
   t.style.cssText=`position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:99999;padding:12px 22px;border-radius:8px;font-family:'Segoe UI',Arial,sans-serif;font-size:14px;font-weight:600;color:#fff;box-shadow:0 4px 18px rgba(0,0,0,.25);background:${type==='success'?'#8CBF3F':type==='warn'?'#e07b00':'#c0392b'};animation:fadeIn .3s ease`;
@@ -285,12 +345,23 @@ function showToast(msg,type='success'){
 
 function getRadioVal(name){const el=document.querySelector(`input[name="${name}"]:checked`);return el?el.value:'nao';}
 
-async function uploadToSupabase(blob,pop,cidade,dataISO,fileName,observacoes,tecnico,intEletrica,intEquip,intBanco,intAmbiente,agendNecessario,agendDescricao){
+async function uploadToSupabase(blob,pop,cidade,dataISO,fileName,observacoes,tecnico,intEletrica,intEquip,intBanco,intAmbiente,agendNecessario,agendDescricao,agendEl,agendElDesc,agendEq,agendEqDesc,agendBk,agendBkDesc,agendAm,agendAmDesc){
   const uploadRes=await fetch(`${SUPABASE_URL}/storage/v1/object/preventivas-pdfs/${fileName}`,{method:'POST',headers:{'Authorization':`Bearer ${SUPABASE_KEY}`,'Content-Type':'application/pdf','x-upsert':'true'},body:blob});
   if(!uploadRes.ok){const e=await uploadRes.text();throw new Error('Upload: '+e);}
   const publicUrl=`${SUPABASE_URL}/storage/v1/object/public/preventivas-pdfs/${encodeURIComponent(fileName)}`;
   const insertRes=await fetch(`${SUPABASE_URL}/rest/v1/preventivas`,{method:'POST',headers:{'Authorization':`Bearer ${SUPABASE_KEY}`,'apikey':SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
-    body:JSON.stringify({data_preventiva:dataISO,pop,cidade,arquivo_url:publicUrl,arquivo_nome:fileName,observacoes:observacoes||null,tecnico:tecnico||null,int_eletrica:intEletrica==='sim',int_equipamentos:intEquip==='sim',int_banco:intBanco==='sim',int_ambiente:intAmbiente==='sim',agendamento_necessario:agendNecessario==='sim',agendamento_descricao:agendNecessario==='sim'?(agendDescricao||null):null})});
+    body:JSON.stringify({
+      data_preventiva:dataISO,pop,cidade,arquivo_url:publicUrl,arquivo_nome:fileName,
+      observacoes:observacoes||null,tecnico:tecnico||null,
+      int_eletrica:intEletrica==='sim',int_equipamentos:intEquip==='sim',
+      int_banco:intBanco==='sim',int_ambiente:intAmbiente==='sim',
+      agendamento_necessario:agendNecessario==='sim',
+      agendamento_descricao:agendNecessario==='sim'?(agendDescricao||null):null,
+      agend_eletrica:agendEl==='sim',agend_eletrica_desc:agendEl==='sim'?(agendElDesc||null):null,
+      agend_equipamentos:agendEq==='sim',agend_equipamentos_desc:agendEq==='sim'?(agendEqDesc||null):null,
+      agend_banco:agendBk==='sim',agend_banco_desc:agendBk==='sim'?(agendBkDesc||null):null,
+      agend_ambiente:agendAm==='sim',agend_ambiente_desc:agendAm==='sim'?(agendAmDesc||null):null,
+    })});
   if(!insertRes.ok){const e=await insertRes.text();throw new Error('Registro: '+e);}
 }
 
@@ -421,10 +492,25 @@ function buildDocElement(){
   });
   const obsVal=v('f-obs');if(obsVal!=='—'){body.appendChild(secBar('Observações Gerais'));const ob=document.createElement('div');ob.style.cssText='border:1px solid #d4ddd8;border-radius:5px;padding:9px 11px;font-size:11px;background:#f7faf8;white-space:pre-wrap';ob.textContent=obsVal;body.appendChild(ob);}
   const agendNec=getRadioVal('agendamento');
-  if(agendNec==='sim'){
-    body.appendChild(secBar('⚠ Intervenção a ser Agendada'));
-    const agDiv=document.createElement('div');agDiv.style.cssText='border:2px solid #f5b8b8;border-radius:5px;padding:9px 11px;font-size:11px;background:#fde;white-space:pre-wrap;color:#7a0000';
-    agDiv.textContent=v('f-agendamento');body.appendChild(agDiv);
+  const agendEl=getRadioVal('agend-eletrica'),agendEq=getRadioVal('agend-equip'),agendBk=getRadioVal('agend-banco'),agendAm=getRadioVal('agend-ambiente');
+  const hasAgend=agendNec==='sim'||agendEl==='sim'||agendEq==='sim'||agendBk==='sim'||agendAm==='sim';
+  if(hasAgend){
+    body.appendChild(secBar('⚠ Agendamentos Necessários'));
+    const agendMap=[
+      ['⚡ Elétrica',agendEl,'f-agend-eletrica'],
+      ['🖥 Equipamentos',agendEq,'f-agend-equip'],
+      ['🔋 Banco de Baterias',agendBk,'f-agend-banco'],
+      ['🏠 Ambiente',agendAm,'f-agend-ambiente'],
+      ['📋 Geral',agendNec,'f-agendamento'],
+    ].filter(([,val])=>val==='sim');
+    const agTbl=document.createElement('table');agTbl.style.cssText='width:100%;border-collapse:collapse;margin-bottom:12px;font-size:11px';
+    let agRows='<tr style="background:#fde"><th style="text-align:left;padding:6px 10px;border:1px solid #f5b8b8;font-size:9px;width:25%">SESSÃO</th><th style="padding:6px 10px;border:1px solid #f5b8b8;font-size:9px">DESCRIÇÃO DO AGENDAMENTO</th></tr>';
+    agendMap.forEach(([label,,detId],i)=>{
+      const detEl=document.getElementById(detId);const detVal=detEl&&detEl.value.trim()?detEl.value.trim():'—';
+      const bg=i%2===0?'#fff5f5':'#fff';
+      agRows+=`<tr style="background:${bg}"><td style="padding:6px 10px;border:1px solid #f5b8b8;font-weight:700;color:#c0392b">${label}</td><td style="padding:6px 10px;border:1px solid #f5b8b8;color:#444">${detVal}</td></tr>`;
+    });
+    agTbl.innerHTML=agRows;body.appendChild(agTbl);
   }
   root.appendChild(body);
   const foot=document.createElement('div');foot.style.cssText='border-top:1px solid #d4ddd8;padding:8px 22px;display:flex;justify-content:space-between;font-size:9px;color:#999;background:#f7faf8';
@@ -463,7 +549,15 @@ async function doPDF(){
       const intAmbiente=getRadioVal('int-ambiente');
       const agendNecessario=getRadioVal('agendamento');
       const agendDescricao=(document.getElementById('f-agendamento')?.value.trim())||'';
-      await uploadToSupabase(pdfBlob,popRaw,cidade,dataISO,fileName,observacoes,tecnico,intEletrica,intEquip,intBanco,intAmbiente,agendNecessario,agendDescricao);
+      const agendEl=getRadioVal('agend-eletrica');
+      const agendElDesc=(document.getElementById('f-agend-eletrica')?.value.trim())||'';
+      const agendEq=getRadioVal('agend-equip');
+      const agendEqDesc=(document.getElementById('f-agend-equip')?.value.trim())||'';
+      const agendBk=getRadioVal('agend-banco');
+      const agendBkDesc=(document.getElementById('f-agend-banco')?.value.trim())||'';
+      const agendAm=getRadioVal('agend-ambiente');
+      const agendAmDesc=(document.getElementById('f-agend-ambiente')?.value.trim())||'';
+      await uploadToSupabase(pdfBlob,popRaw,cidade,dataISO,fileName,observacoes,tecnico,intEletrica,intEquip,intBanco,intAmbiente,agendNecessario,agendDescricao,agendEl,agendElDesc,agendEq,agendEqDesc,agendBk,agendBkDesc,agendAm,agendAmDesc);
       hideSpinner();showToast('✅ PDF salvo e registrado na nuvem!','success');
     }catch(ue){hideSpinner();showToast('⚠️ PDF salvo localmente. Erro no registro: '+ue.message,'warn');console.error('Supabase error:',ue);}
   }catch(e){if(document.body.contains(el))document.body.removeChild(el);hideSpinner();alert('Erro ao gerar PDF: '+e.message);}
