@@ -538,6 +538,14 @@ function mergeData(){
       int_ambiente: rec?.int_ambiente || false,
       agendamento_necessario: rec?.agendamento_necessario || false,
       agendamento_descricao: rec?.agendamento_descricao || '',
+      agend_eletrica: rec?.agend_eletrica || false,
+      agend_eletrica_desc: rec?.agend_eletrica_desc || '',
+      agend_equipamentos: rec?.agend_equipamentos || false,
+      agend_equipamentos_desc: rec?.agend_equipamentos_desc || '',
+      agend_banco: rec?.agend_banco || false,
+      agend_banco_desc: rec?.agend_banco_desc || '',
+      agend_ambiente: rec?.agend_ambiente || false,
+      agend_ambiente_desc: rec?.agend_ambiente_desc || '',
     };
   });
 }
@@ -557,7 +565,9 @@ function updateStats(){
 
 /* ── AGENDAMENTOS TAB ── */
 function renderAgendamentosTab(){
-  const itens = tableData.filter(r => r.agendamento_necessario && r.agendamento_descricao);
+  const itens = tableData.filter(r =>
+    r.agendamento_necessario || r.agend_eletrica || r.agend_equipamentos || r.agend_banco || r.agend_ambiente
+  );
   const badge = document.getElementById('agend-badge');
   if(itens.length){ badge.style.display='inline';badge.textContent=itens.length; }
   else{ badge.style.display='none'; }
@@ -567,6 +577,18 @@ function renderAgendamentosTab(){
   }
   const html = itens.map(r=>{
     const data = r.ultima ? new Date(r.ultima+'T12:00:00').toLocaleDateString('pt-BR') : '—';
+    const sessoes = [
+      r.agend_eletrica     ? {icon:'⚡',label:'Elétrica',    desc:r.agend_eletrica_desc,    cls:'chip-el'} : null,
+      r.agend_equipamentos ? {icon:'🖥',label:'Equipamentos', desc:r.agend_equipamentos_desc, cls:'chip-eq'} : null,
+      r.agend_banco        ? {icon:'🔋',label:'Banco',        desc:r.agend_banco_desc,        cls:'chip-bk'} : null,
+      r.agend_ambiente     ? {icon:'🏠',label:'Ambiente',     desc:r.agend_ambiente_desc,     cls:'chip-am'} : null,
+      r.agendamento_necessario ? {icon:'📋',label:'Geral',   desc:r.agendamento_descricao,   cls:''} : null,
+    ].filter(Boolean);
+    const sessoesHtml = sessoes.map(s=>`
+      <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 0;border-bottom:1px solid #fde;font-size:12px">
+        <span class="${s.cls||''}" style="${!s.cls?'background:#fde;color:#c0392b;border:1px solid #f5b8b8;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700':''}">${s.icon} ${s.label}</span>
+        <span style="color:var(--g800);flex:1">${esc(s.desc||'Sem descrição')}</span>
+      </div>`).join('');
     return `<div class="agend-card">
       <div class="agend-card-hd">
         <div style="display:flex;align-items:center;gap:10px">
@@ -575,11 +597,11 @@ function renderAgendamentosTab(){
         </div>
         <div class="agend-meta">Técnico: ${esc(r.tecnico||'—')} &nbsp;|&nbsp; Preventiva: ${data}</div>
       </div>
-      <div class="agend-body">${esc(r.agendamento_descricao)}</div>
-      ${isAdmin()&&r.recId?`<div class="agend-actions"><button class="btn-limpar-obs" onclick="resolverAgendamento('${r.recId}','${esc(r.pop)}')">✔ Marcar como resolvido</button></div>`:''}
+      <div class="agend-body" style="padding-top:4px">${sessoesHtml}</div>
+      ${isAdmin()&&r.recId?`<div class="agend-actions"><button class="btn-limpar-obs" onclick="resolverAgendamento('${r.recId}','${esc(r.pop)}')">✔ Marcar todos como resolvidos</button></div>`:''}
     </div>`;
   }).join('');
-  document.getElementById('agend-content').innerHTML = `<div style="margin-bottom:12px"><strong style="font-size:13px">${itens.length} agendamento${itens.length!==1?'s':''} pendente${itens.length!==1?'s':''}</strong></div>${html}`;
+  document.getElementById('agend-content').innerHTML = `<div style="margin-bottom:12px"><strong style="font-size:13px">${itens.length} POP${itens.length!==1?'s':''} com agendamento pendente</strong></div>${html}`;
 }
 
 async function resolverAgendamento(id, pop){
