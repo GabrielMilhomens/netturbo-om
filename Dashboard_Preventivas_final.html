@@ -387,10 +387,10 @@ const POPS = [
   {pop:'SP-SPO-SP2', cidade:'São Paulo',            regiao:'Demais Regiões', intervalo:60},
   {pop:'SP-SPO-SP4', cidade:'São Paulo',            regiao:'Demais Regiões', intervalo:60},
   {pop:'SP-SOC-DAS', cidade:'Sorocaba',             regiao:'Demais Regiões', intervalo:60},
-  {pop:'SP-MOR-JNA', cidade:'Monte Mor',            regiao:'RMC', intervalo:60},
-  {pop:'SP-IIA-ITRA',cidade:'Itapira',              regiao:'Demais Regiões', intervalo:60},
-  {pop:'SP-JAI-NPL', cidade:'Jundiaí',              regiao:'RMJ', intervalo:60},
-  {pop:'SP-PAA-VMO', cidade:'Piracicaba',           regiao:'RMP', intervalo:60},
+  {pop:'SP-MOR-JNA', cidade:'Mogi das Cruzes',      regiao:'Demais Regiões', intervalo:60},
+  {pop:'SP-IIA-ITRA',cidade:'Ibiúna',               regiao:'Demais Regiões', intervalo:60},
+  {pop:'SP-JAI-NPL', cidade:'Jaú',                  regiao:'Demais Regiões', intervalo:60},
+  {pop:'SP-PAA-VMO', cidade:'Paraguaçu Paulista',   regiao:'Demais Regiões', intervalo:60},
   {pop:'SP-CAO-CMI', cidade:'Cubatão',              regiao:'Região Baixada', intervalo:60},
   {pop:'SP-GJA-MNE', cidade:'Guarujá',              regiao:'Região Baixada', intervalo:60},
   {pop:'SP-STS-CPM', cidade:'Santos',               regiao:'Região Baixada', intervalo:60},
@@ -409,7 +409,7 @@ const POPS = [
   {pop:'SP-VIN-APS', cidade:'Vinhedo',              regiao:'RMC',            intervalo:60},
   {pop:'SP-VIN-ACT', cidade:'Vinhedo',              regiao:'RMC',            intervalo:60},
   {pop:'SP-AAS-VMC', cidade:'Artur Nogueira',       regiao:'RMC',            intervalo:60},
-  {pop:'SP-ELI-SRC', cidade:'Elias Fausto',         regiao:'RMP',            intervalo:60},
+  {pop:'SP-ELI-SRC', cidade:'Elias Fausto',         regiao:'RMC',            intervalo:60},
   {pop:'SP-HOT-HTC', cidade:'Hortolândia',          regiao:'RMC',            intervalo:60},
   {pop:'SP-NDS-BLV', cidade:'Nova Odessa',          regiao:'RMC',            intervalo:60},
   {pop:'SP-CLP-ACM', cidade:'Campinas',             regiao:'RMC',            intervalo:60},
@@ -417,12 +417,12 @@ const POPS = [
   {pop:'SP-CVA-ITL', cidade:'Cabreúva',             regiao:'RMJ',            intervalo:60},
   {pop:'SP-ITV-SMA', cidade:'Itupeva',              regiao:'RMJ',            intervalo:60},
   {pop:'SP-JIU-CEN', cidade:'Jundiaí',              regiao:'RMJ',            intervalo:60},
-  {pop:'SP-CDP-COR', cidade:'Cordeirópolis',        regiao:'RMP',            intervalo:60},
-  {pop:'SP-VOS-NTT', cidade:'Valinhos',             regiao:'RMC', intervalo:60},
-  {pop:'SP-VOS-VTC', cidade:'Valinhos',             regiao:'RMC', intervalo:60},
-  {pop:'SP-VOS-CLN', cidade:'Valinhos',             regiao:'RMC', intervalo:60},
-  {pop:'SP-VOS-ALP', cidade:'Valinhos',             regiao:'RMC', intervalo:60},
-  {pop:'SP-VOS-MCC', cidade:'Valinhos',             regiao:'RMC', intervalo:60},
+  {pop:'SP-CDP-COR', cidade:'Campo Limpo Paulista', regiao:'RMJ',            intervalo:60},
+  {pop:'SP-VOS-NTT', cidade:'Votorantim',           regiao:'Demais Regiões', intervalo:60},
+  {pop:'SP-VOS-VTC', cidade:'Votorantim',           regiao:'Demais Regiões', intervalo:60},
+  {pop:'SP-VOS-CLN', cidade:'Votorantim',           regiao:'Demais Regiões', intervalo:60},
+  {pop:'SP-VOS-ALP', cidade:'Votorantim',           regiao:'Demais Regiões', intervalo:60},
+  {pop:'SP-VOS-MCC', cidade:'Votorantim',           regiao:'Demais Regiões', intervalo:60},
   {pop:'SP-LRA-JGR', cidade:'Limeira',              regiao:'RMP',            intervalo:60},
   {pop:'SP-LRA-MRA', cidade:'Limeira',              regiao:'RMP',            intervalo:60},
   {pop:'SP-RCO-JDA', cidade:'Rio Claro',            regiao:'RMP',            intervalo:60},
@@ -765,6 +765,15 @@ function renderTable(){
       ? `<a class="btn-dl" href="${r.arquivo_url}" target="_blank">⬇ PDF</a>`
       : '<span class="no-pdf">—</span>';
     const hasObs = r.observacoes && r.observacoes.trim();
+    const intChips = [
+      r.int_eletrica     ? '<span class="chip-el" style="display:inline-block;margin:1px">⚡ Elétrica</span>' : '',
+      r.int_equipamentos ? '<span class="chip-eq" style="display:inline-block;margin:1px">🖥 Equip.</span>' : '',
+      r.int_banco        ? '<span class="chip-bk" style="display:inline-block;margin:1px">🔋 Banco</span>' : '',
+      r.int_ambiente     ? '<span class="chip-am" style="display:inline-block;margin:1px">🏠 Ambiente</span>' : '',
+    ].filter(Boolean).join('');
+    const intCell = intChips
+      ? `<div style="display:flex;flex-wrap:wrap;gap:2px">${intChips}</div>`
+      : '<span class="no-pdf">—</span>';
     const obsCell = hasObs
       ? `<div style="display:flex;flex-direction:column;gap:4px">
            <div><span class="obs-icon">⚠️</span><span class="obs-cell">${esc(r.observacoes)}</span></div>
@@ -785,6 +794,7 @@ function renderTable(){
       <td>${fmtProxima(r.proxima, r.diff)}</td>
       <td>${statusBadge(r.status)}</td>
       <td style="font-size:12px;color:var(--g500)">${esc(r.tecnico||'—')}</td>
+      <td>${intCell}</td>
       <td>${obsCell}</td>
       <td>${pdfCell}</td>
     </tr>`;
@@ -801,6 +811,7 @@ function renderTable(){
         <th onclick="setSort('status')" class="${sortCol==='status'?'sorted':''}">Status ${sortIcon('status')}</th>
         <th onclick="setSort('tecnico')">Técnico ${sortIcon('tecnico')}</th>
         <th>Intervenção</th>
+        <th>Pendência</th>
         <th>Arquivo</th>
       </tr></thead>
       <tbody>${rows}</tbody>
