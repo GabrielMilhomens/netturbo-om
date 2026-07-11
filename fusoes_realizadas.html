@@ -114,18 +114,20 @@
   }
   .grid2 {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 10px;
     margin-bottom: 14px;
   }
   .localizacao-row {
     display: flex;
-    align-items: flex-end;
+    flex-direction: column;
+    align-items: stretch;
     gap: 8px;
     margin-bottom: 14px;
   }
   .localizacao-row .field { flex: 1; }
   .btn-gps {
+    width: 100%;
     flex: 0 0 auto;
     height: 44px;
     padding: 0 14px;
@@ -314,11 +316,10 @@
     color: var(--nt-red);
     border: 1px solid #e0b4ae;
   }
-  @media (max-width: 560px) {
-    .grid3 { grid-template-columns: 1fr; }
-    .grid2 { grid-template-columns: 1fr; }
-    .localizacao-row { flex-direction: column; align-items: stretch; }
-    .btn-gps { width: 100%; }
+  @media (min-width: 640px) {
+    .grid2 { grid-template-columns: 1fr 1fr; }
+    .localizacao-row { flex-direction: row; align-items: flex-end; }
+    .btn-gps { width: auto; }
   }
 </style>
 </head>
