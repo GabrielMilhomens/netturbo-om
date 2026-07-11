@@ -69,11 +69,14 @@ a.map-link:hover{text-decoration:underline}
 .status-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:12px;font-size:11px;font-weight:700;white-space:nowrap}
 .st-pendente{background:#fff8e1;color:#b36200;border:1px solid #ffe082}
 .st-aprovado{background:#f0fae0;color:#5a8a1a;border:1px solid #c8dda8}
+.st-cadastrado{background:#e3f2fd;color:#1565c0;border:1px solid #90caf9}
 .acao-btns{display:flex;gap:6px;flex-wrap:nowrap}
 .btn-editar{padding:5px 10px;background:#e3f2fd;color:#1565c0;border:1px solid #90caf9;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
 .btn-editar:hover{background:#1565c0;color:#fff}
 .btn-aprovar{padding:5px 10px;background:var(--gd);color:#fff;border:none;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
 .btn-aprovar:hover{filter:brightness(1.1)}
+.btn-cadastrar{padding:5px 10px;background:#1565c0;color:#fff;border:none;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
+.btn-cadastrar:hover{filter:brightness(1.1)}
 .edit-modal-bg{display:none;position:fixed;inset:0;background:rgba(20,30,20,.55);z-index:2500;align-items:center;justify-content:center;padding:16px}
 .edit-modal-bg.show{display:flex}
 .edit-modal{background:#fff;border-radius:14px;max-width:420px;width:100%;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.25)}
@@ -158,6 +161,7 @@ a.map-link:hover{text-decoration:underline}
     <div class="stat-card s-cidades"><div class="lbl">Cidades</div><div class="val" id="statCidades">—</div></div>
     <div class="stat-card s-hoje"><div class="lbl">Enviados hoje</div><div class="val" id="statHoje">—</div></div>
   </div>
+  <div class="stats" id="stats-extra"></div>
 
   <div class="filter-bar">
     <div class="fld">
@@ -198,6 +202,8 @@ a.map-link:hover{text-decoration:underline}
             <th>Cabo B</th>
             <th>Fibra B</th>
             <th>Status</th>
+            <th>Aprovado por</th>
+            <th>Cadastrado por</th>
             <th id="th-acoes" style="display:none">Ações</th>
           </tr>
         </thead>
@@ -284,6 +290,7 @@ a.map-link:hover{text-decoration:underline}
   }
 
   let perfilAtual = null;
+  let nomeAtual = null;
   let usuarioAtualId = null;
 
   async function mostrarDashboard(user) {
@@ -294,7 +301,7 @@ a.map-link:hover{text-decoration:underline}
 
     const { data: perfilRow, error: perfilError } = await supabaseClient
       .from('perfis_coleta')
-      .select('perfil')
+      .select('perfil, nome')
       .eq('user_id', user.id)
       .single();
 
@@ -308,10 +315,10 @@ a.map-link:hover{text-decoration:underline}
     }
 
     perfilAtual = perfilRow.perfil;
-    const labels = { admin: 'Administrador', aprovador: 'Aprovador', cadastro: 'Cadastro' };
+    nomeAtual = perfilRow.nome || user.email.split('@')[0];
+    const labels = { admin: 'Administrador', aprovador: 'Aprovador', cadastro: 'Cadastro', fiscalizacao: 'Fiscalização' };
     document.getElementById('u-perfil').textContent = labels[perfilAtual] || perfilAtual;
-    document.getElementById('th-acoes').style.display =
-      (perfilAtual === 'admin' || perfilAtual === 'aprovador') ? '' : 'none';
+    document.getElementById('th-acoes').style.display = (perfilAtual === 'fiscalizacao') ? 'none' : '';
 
     dashWrap.style.display = 'block';
     carregarDados();
@@ -427,19 +434,25 @@ a.map-link:hover{text-decoration:underline}
       const dataFormatada = r.created_at ? new Date(r.created_at).toLocaleString('pt-BR') : '';
       const localizacaoHtml = formatarLocalizacao(r.localizacao);
       const status = r.status || 'pendente';
-      const statusHtml = status === 'aprovado'
-        ? '<span class="status-badge st-aprovado">✔ Aprovado</span>'
-        : '<span class="status-badge st-pendente">⏳ Pendente</span>';
 
-      const podeAgir = (perfilAtual === 'admin' || perfilAtual === 'aprovador');
+      const statusMap = {
+        pendente:  '<span class="status-badge st-pendente">⏳ Pendente</span>',
+        aprovado:  '<span class="status-badge st-aprovado">✔ Aprovado</span>',
+        cadastrado:'<span class="status-badge st-cadastrado">📋 Cadastrado</span>'
+      };
+      const statusHtml = statusMap[status] || statusMap.pendente;
+
       const podeEditar = perfilAtual === 'admin' || (perfilAtual === 'aprovador' && status === 'pendente');
       const podeAprovar = status === 'pendente' && (perfilAtual === 'admin' || perfilAtual === 'aprovador');
+      const podeMarcarCadastrado = status === 'aprovado' && (perfilAtual === 'admin' || perfilAtual === 'cadastro');
+      const podeAgir = podeEditar || podeAprovar || podeMarcarCadastrado;
 
       let acoesHtml = '';
       if (podeAgir) {
         acoesHtml = '<div class="acao-btns">';
         if (podeEditar) acoesHtml += `<button class="btn-editar" onclick="abrirEdicao('${r.id}')">✏️ Editar</button>`;
         if (podeAprovar) acoesHtml += `<button class="btn-aprovar" onclick="aprovarRegistro('${r.id}')">✔ Aprovar</button>`;
+        if (podeMarcarCadastrado) acoesHtml += `<button class="btn-cadastrar" onclick="marcarCadastrado('${r.id}')">📋 Marcar Cadastrado</button>`;
         acoesHtml += '</div>';
       }
 
@@ -453,13 +466,15 @@ a.map-link:hover{text-decoration:underline}
         <td>${escapeHtml(r.cabo_b)}</td>
         <td>${escapeHtml(r.fibra_b)}</td>
         <td>${statusHtml}</td>
-        <td style="${podeAgir ? '' : 'display:none'}">${acoesHtml}</td>
+        <td>${escapeHtml(r.aprovado_por) || '—'}</td>
+        <td>${escapeHtml(r.cadastrado_por) || '—'}</td>
+        <td style="${perfilAtual === 'fiscalizacao' ? 'display:none' : ''}">${acoesHtml}</td>
       `;
       corpo.appendChild(tr);
     });
   }
 
-  /* ---------- EDIÇÃO E APROVAÇÃO ---------- */
+  /* ---------- EDIÇÃO, APROVAÇÃO E CADASTRO ---------- */
   function abrirEdicao(id) {
     const r = registrosAtuais.find(x => x.id === id);
     if (!r) return;
@@ -500,9 +515,27 @@ a.map-link:hover{text-decoration:underline}
 
   async function aprovarRegistro(id) {
     if (!confirm('Aprovar este registro? Depois de aprovado, ele não poderá mais ser editado.')) return;
-    const { error } = await supabaseClient.from(TABLE_NAME).update({ status: 'aprovado' }).eq('id', id);
+    const { error } = await supabaseClient.from(TABLE_NAME).update({
+      status: 'aprovado',
+      aprovado_por: nomeAtual,
+      aprovado_em: new Date().toISOString()
+    }).eq('id', id);
     if (error) {
       alert('Erro ao aprovar: ' + error.message);
+      return;
+    }
+    await carregarDados();
+  }
+
+  async function marcarCadastrado(id) {
+    if (!confirm('Marcar este registro como cadastrado?')) return;
+    const { error } = await supabaseClient.from(TABLE_NAME).update({
+      status: 'cadastrado',
+      cadastrado_por: nomeAtual,
+      cadastrado_em: new Date().toISOString()
+    }).eq('id', id);
+    if (error) {
+      alert('Erro ao marcar como cadastrado: ' + error.message);
       return;
     }
     await carregarDados();
@@ -526,6 +559,29 @@ a.map-link:hover{text-decoration:underline}
       r.created_at && new Date(r.created_at).toDateString() === hoje
     ).length;
     document.getElementById('statHoje').textContent = enviadosHoje;
+
+    renderStatsExtra();
+  }
+
+  function renderStatsExtra() {
+    const container = document.getElementById('stats-extra');
+    container.innerHTML = '';
+
+    const totalAprovados = registrosAtuais.filter(r => r.status === 'aprovado' || r.status === 'cadastrado').length;
+    const totalCadastrados = registrosAtuais.filter(r => r.status === 'cadastrado').length;
+    const minhasAprovacoes = registrosAtuais.filter(r => r.aprovado_por === nomeAtual).length;
+    const meusCadastros = registrosAtuais.filter(r => r.cadastrado_por === nomeAtual).length;
+
+    let cards = '';
+    if (perfilAtual === 'aprovador') {
+      cards += `<div class="stat-card s-total"><div class="lbl">Suas Aprovações</div><div class="val">${minhasAprovacoes}</div></div>`;
+    } else if (perfilAtual === 'cadastro') {
+      cards += `<div class="stat-card s-caixas"><div class="lbl">Seus Cadastros</div><div class="val">${meusCadastros}</div></div>`;
+    } else if (perfilAtual === 'fiscalizacao' || perfilAtual === 'admin') {
+      cards += `<div class="stat-card s-caixas"><div class="lbl">Total Aprovados</div><div class="val">${totalAprovados}</div></div>`;
+      cards += `<div class="stat-card s-hoje"><div class="lbl">Total Cadastrados</div><div class="val">${totalCadastrados}</div></div>`;
+    }
+    container.innerHTML = cards;
   }
 
   function escapeHtml(str) {
@@ -546,6 +602,7 @@ a.map-link:hover{text-decoration:underline}
       return;
     }
 
+    const statusLabels = { pendente: 'Pendente', aprovado: 'Aprovado', cadastrado: 'Cadastrado' };
     const dados = registrosFiltrados.map(r => ({
       'Data/Hora': r.created_at ? new Date(r.created_at).toLocaleString('pt-BR') : '',
       'Etiqueta': r.etiqueta || '',
@@ -555,13 +612,16 @@ a.map-link:hover{text-decoration:underline}
       'Fibra A': r.fibra_a || '',
       'Cabo B': r.cabo_b || '',
       'Fibra B': r.fibra_b || '',
-      'Status': r.status === 'aprovado' ? 'Aprovado' : 'Pendente'
+      'Status': statusLabels[r.status] || 'Pendente',
+      'Aprovado por': r.aprovado_por || '',
+      'Cadastrado por': r.cadastrado_por || ''
     }));
 
     const ws = XLSX.utils.json_to_sheet(dados);
     ws['!cols'] = [
       { wch: 18 }, { wch: 14 }, { wch: 16 }, { wch: 32 },
-      { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 12 }
+      { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 12 },
+      { wch: 14 }, { wch: 14 }
     ];
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Registros');
