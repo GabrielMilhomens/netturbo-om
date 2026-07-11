@@ -66,6 +66,25 @@ tr:hover td{background:var(--g50)}
 .pop-badge{display:inline-block;padding:3px 9px;border-radius:12px;font-size:10px;font-weight:700;background:var(--gl);color:var(--gd);border:1px solid #c8dda8;white-space:nowrap}
 a.map-link{color:var(--gd);font-weight:700;text-decoration:none}
 a.map-link:hover{text-decoration:underline}
+.status-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:12px;font-size:11px;font-weight:700;white-space:nowrap}
+.st-pendente{background:#fff8e1;color:#b36200;border:1px solid #ffe082}
+.st-aprovado{background:#f0fae0;color:#5a8a1a;border:1px solid #c8dda8}
+.acao-btns{display:flex;gap:6px;flex-wrap:nowrap}
+.btn-editar{padding:5px 10px;background:#e3f2fd;color:#1565c0;border:1px solid #90caf9;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
+.btn-editar:hover{background:#1565c0;color:#fff}
+.btn-aprovar{padding:5px 10px;background:var(--gd);color:#fff;border:none;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
+.btn-aprovar:hover{filter:brightness(1.1)}
+.edit-modal-bg{display:none;position:fixed;inset:0;background:rgba(20,30,20,.55);z-index:2500;align-items:center;justify-content:center;padding:16px}
+.edit-modal-bg.show{display:flex}
+.edit-modal{background:#fff;border-radius:14px;max-width:420px;width:100%;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.edit-modal-hd{background:var(--gd);padding:16px 20px;color:#fff}
+.edit-modal-hd h3{font-size:15px;font-weight:700}
+.edit-modal-body{padding:20px;max-height:70vh;overflow-y:auto}
+.edit-fld{margin-bottom:12px}
+.edit-fld label{display:block;font-size:10px;font-weight:700;color:var(--g500);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.edit-fld input{width:100%;padding:9px 10px;border:1px solid var(--bdr);border-radius:6px;font-size:14px;font-family:inherit}
+.edit-fld input:focus{outline:none;border-color:var(--gd);box-shadow:0 0 0 3px rgba(140,191,63,.15)}
+.edit-modal-actions{display:flex;gap:10px;justify-content:flex-end;padding:14px 20px;border-top:1px solid var(--bdr)}
 .empty,.spin-wrap{padding:48px;text-align:center;color:var(--g500)}
 .spinner{width:32px;height:32px;border:3px solid var(--g100);border-top-color:var(--gd);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -125,7 +144,7 @@ a.map-link:hover{text-decoration:underline}
   <div class="user-badge" id="user-badge" style="display:none">
     <div class="user-info">
       <div class="u-nome" id="u-email"></div>
-      <div class="u-perfil">Administrador</div>
+      <div class="u-perfil" id="u-perfil">—</div>
     </div>
     <button class="btn-logout" onclick="doLogout()">Sair</button>
   </div>
@@ -178,6 +197,8 @@ a.map-link:hover{text-decoration:underline}
             <th>Fibra A</th>
             <th>Cabo B</th>
             <th>Fibra B</th>
+            <th>Status</th>
+            <th id="th-acoes" style="display:none">Ações</th>
           </tr>
         </thead>
         <tbody id="corpoTabela"></tbody>
@@ -187,6 +208,25 @@ a.map-link:hover{text-decoration:underline}
     </div>
   </div>
 
+</div>
+
+<div class="edit-modal-bg" id="edit-modal-bg">
+  <div class="edit-modal">
+    <div class="edit-modal-hd"><h3>Editar Registro</h3></div>
+    <div class="edit-modal-body">
+      <div class="edit-fld"><label>Etiqueta</label><input type="text" id="edit-etiqueta"></div>
+      <div class="edit-fld"><label>Cidade</label><input type="text" id="edit-cidade"></div>
+      <div class="edit-fld"><label>Localização</label><input type="text" id="edit-localizacao"></div>
+      <div class="edit-fld"><label>Cabo A</label><input type="text" id="edit-cabo-a"></div>
+      <div class="edit-fld"><label>Fibra A</label><input type="text" id="edit-fibra-a"></div>
+      <div class="edit-fld"><label>Cabo B</label><input type="text" id="edit-cabo-b"></div>
+      <div class="edit-fld"><label>Fibra B</label><input type="text" id="edit-fibra-b"></div>
+    </div>
+    <div class="edit-modal-actions">
+      <button class="btn btn-ghost" onclick="fecharEdicao()">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarEdicao()">Salvar</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -243,11 +283,37 @@ a.map-link:hover{text-decoration:underline}
     document.getElementById('l-pass').value = '';
   }
 
-  function mostrarDashboard(user) {
+  let perfilAtual = null;
+  let usuarioAtualId = null;
+
+  async function mostrarDashboard(user) {
     loginOverlay.classList.add('hide');
-    dashWrap.style.display = 'block';
     document.getElementById('user-badge').style.display = 'flex';
     document.getElementById('u-email').textContent = user.email;
+    usuarioAtualId = user.id;
+
+    const { data: perfilRow, error: perfilError } = await supabaseClient
+      .from('perfis_coleta')
+      .select('perfil')
+      .eq('user_id', user.id)
+      .single();
+
+    if (perfilError || !perfilRow) {
+      document.getElementById('u-perfil').textContent = 'Sem perfil configurado';
+      dashWrap.style.display = 'block';
+      document.getElementById('emptyMsg').textContent = 'Seu usuário não tem um perfil configurado. Contate o administrador.';
+      document.getElementById('emptyMsg').style.display = 'block';
+      document.getElementById('loadingMsg').style.display = 'none';
+      return;
+    }
+
+    perfilAtual = perfilRow.perfil;
+    const labels = { admin: 'Administrador', aprovador: 'Aprovador', cadastro: 'Cadastro' };
+    document.getElementById('u-perfil').textContent = labels[perfilAtual] || perfilAtual;
+    document.getElementById('th-acoes').style.display =
+      (perfilAtual === 'admin' || perfilAtual === 'aprovador') ? '' : 'none';
+
+    dashWrap.style.display = 'block';
     carregarDados();
   }
 
@@ -360,6 +426,22 @@ a.map-link:hover{text-decoration:underline}
       const tr = document.createElement('tr');
       const dataFormatada = r.created_at ? new Date(r.created_at).toLocaleString('pt-BR') : '';
       const localizacaoHtml = formatarLocalizacao(r.localizacao);
+      const status = r.status || 'pendente';
+      const statusHtml = status === 'aprovado'
+        ? '<span class="status-badge st-aprovado">✔ Aprovado</span>'
+        : '<span class="status-badge st-pendente">⏳ Pendente</span>';
+
+      const podeAgir = (perfilAtual === 'admin' || perfilAtual === 'aprovador');
+      const podeEditar = perfilAtual === 'admin' || (perfilAtual === 'aprovador' && status === 'pendente');
+      const podeAprovar = status === 'pendente' && (perfilAtual === 'admin' || perfilAtual === 'aprovador');
+
+      let acoesHtml = '';
+      if (podeAgir) {
+        acoesHtml = '<div class="acao-btns">';
+        if (podeEditar) acoesHtml += `<button class="btn-editar" onclick="abrirEdicao('${r.id}')">✏️ Editar</button>`;
+        if (podeAprovar) acoesHtml += `<button class="btn-aprovar" onclick="aprovarRegistro('${r.id}')">✔ Aprovar</button>`;
+        acoesHtml += '</div>';
+      }
 
       tr.innerHTML = `
         <td>${dataFormatada}</td>
@@ -370,9 +452,60 @@ a.map-link:hover{text-decoration:underline}
         <td>${escapeHtml(r.fibra_a)}</td>
         <td>${escapeHtml(r.cabo_b)}</td>
         <td>${escapeHtml(r.fibra_b)}</td>
+        <td>${statusHtml}</td>
+        <td style="${podeAgir ? '' : 'display:none'}">${acoesHtml}</td>
       `;
       corpo.appendChild(tr);
     });
+  }
+
+  /* ---------- EDIÇÃO E APROVAÇÃO ---------- */
+  function abrirEdicao(id) {
+    const r = registrosAtuais.find(x => x.id === id);
+    if (!r) return;
+    document.getElementById('edit-modal-bg').dataset.editId = id;
+    document.getElementById('edit-etiqueta').value = r.etiqueta || '';
+    document.getElementById('edit-cidade').value = r.cidade || '';
+    document.getElementById('edit-localizacao').value = r.localizacao || '';
+    document.getElementById('edit-cabo-a').value = r.cabo_a || '';
+    document.getElementById('edit-fibra-a').value = r.fibra_a || '';
+    document.getElementById('edit-cabo-b').value = r.cabo_b || '';
+    document.getElementById('edit-fibra-b').value = r.fibra_b || '';
+    document.getElementById('edit-modal-bg').classList.add('show');
+  }
+
+  function fecharEdicao() {
+    document.getElementById('edit-modal-bg').classList.remove('show');
+  }
+
+  async function salvarEdicao() {
+    const id = document.getElementById('edit-modal-bg').dataset.editId;
+    const atualizacao = {
+      etiqueta: document.getElementById('edit-etiqueta').value.trim(),
+      cidade: document.getElementById('edit-cidade').value.trim(),
+      localizacao: document.getElementById('edit-localizacao').value.trim(),
+      cabo_a: document.getElementById('edit-cabo-a').value.trim(),
+      fibra_a: document.getElementById('edit-fibra-a').value.trim(),
+      cabo_b: document.getElementById('edit-cabo-b').value.trim(),
+      fibra_b: document.getElementById('edit-fibra-b').value.trim()
+    };
+    const { error } = await supabaseClient.from(TABLE_NAME).update(atualizacao).eq('id', id);
+    if (error) {
+      alert('Erro ao salvar: ' + error.message);
+      return;
+    }
+    fecharEdicao();
+    await carregarDados();
+  }
+
+  async function aprovarRegistro(id) {
+    if (!confirm('Aprovar este registro? Depois de aprovado, ele não poderá mais ser editado.')) return;
+    const { error } = await supabaseClient.from(TABLE_NAME).update({ status: 'aprovado' }).eq('id', id);
+    if (error) {
+      alert('Erro ao aprovar: ' + error.message);
+      return;
+    }
+    await carregarDados();
   }
 
   function atualizarStats() {
@@ -421,13 +554,14 @@ a.map-link:hover{text-decoration:underline}
       'Cabo A': r.cabo_a || '',
       'Fibra A': r.fibra_a || '',
       'Cabo B': r.cabo_b || '',
-      'Fibra B': r.fibra_b || ''
+      'Fibra B': r.fibra_b || '',
+      'Status': r.status === 'aprovado' ? 'Aprovado' : 'Pendente'
     }));
 
     const ws = XLSX.utils.json_to_sheet(dados);
     ws['!cols'] = [
       { wch: 18 }, { wch: 14 }, { wch: 16 }, { wch: 32 },
-      { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 10 }
+      { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 12 }
     ];
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Registros');
