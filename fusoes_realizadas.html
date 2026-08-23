@@ -680,7 +680,7 @@
               <label>Tipo de Conexão</label>
               <select data-field="tipoConexao" onchange="mudarTipoConexao('${caixa.id}','${conexao.id}', this.value)">
                 <option value="" ${conexao.tipoConexao === '' ? 'selected' : ''}>Selecione...</option>
-                <option value="splitter_existente" ${conexao.tipoConexao === 'splitter_existente' ? 'selected' : ''}>Splitter existente com cabo existente</option>
+                <option value="splitter_existente" ${conexao.tipoConexao === 'splitter_existente' ? 'selected' : ''}>Splitter com Cabo</option>
                 <option value="cabo_existente" ${conexao.tipoConexao === 'cabo_existente' ? 'selected' : ''}>Cabo com Cabo</option>
                 <option value="novo_splitter" ${conexao.tipoConexao === 'novo_splitter' ? 'selected' : ''}>Instalação de novo splitter</option>
                 <option value="splitter_splitter" ${conexao.tipoConexao === 'splitter_splitter' ? 'selected' : ''}>Splitter com Splitter</option>
@@ -863,7 +863,7 @@
 
     caixas.forEach((caixa, idx) => {
       const tipoLabels = {
-        splitter_existente: 'Splitter existente com cabo existente',
+        splitter_existente: 'Splitter com Cabo',
         cabo_existente: 'Cabo com Cabo',
         novo_splitter: 'Instalação de novo splitter',
         splitter_splitter: 'Splitter com Splitter'
