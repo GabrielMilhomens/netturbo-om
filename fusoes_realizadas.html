@@ -152,7 +152,7 @@
     letter-spacing: 0.3px;
     text-align: center;
   }
-  .field input {
+  .field input, .field select {
     width: 100%;
     padding: 12px 11px;
     border: 1px solid var(--nt-border);
@@ -160,8 +160,11 @@
     font-size: 16px;
     background: #fbfcfa;
     min-height: 44px;
+    font-family: inherit;
+    color: var(--nt-dark);
   }
-  .field input:focus {
+  .field select { cursor: pointer; }
+  .field input:focus, .field select:focus {
     outline: none;
     border-color: var(--nt-green);
     box-shadow: 0 0 0 3px rgba(140,191,63,0.2);
@@ -186,6 +189,26 @@
     border-radius: 7px;
     background: var(--nt-green-light);
     font-size: 13px;
+  }
+  .conexao-bloco {
+    background: #fafbf8;
+    border: 1px solid #e3e6de;
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 14px;
+  }
+  .conexao-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .conexao-titulo {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--nt-green-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
   }
   .fibras-section {
     margin-top: 16px;
@@ -316,6 +339,83 @@
     color: var(--nt-red);
     border: 1px solid #e0b4ae;
   }
+  .step-indicator {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+  .step-dot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    opacity: 0.45;
+  }
+  .step-dot.active, .step-dot.done { opacity: 1; }
+  .step-num {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid var(--nt-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--nt-green-dark);
+  }
+  .step-dot.active .step-num { background: var(--nt-green); border-color: var(--nt-green); color: #fff; }
+  .step-dot.done .step-num { background: var(--nt-green-light); border-color: var(--nt-green); }
+  .step-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #777;
+    letter-spacing: 0.3px;
+  }
+  .step-line {
+    width: 22px;
+    height: 2px;
+    background: var(--nt-border);
+    margin-top: 14px;
+  }
+  .btn-voltar {
+    flex: 0 0 auto;
+    padding: 0 16px;
+    height: 48px;
+    background: #fff;
+    border: 1px solid var(--nt-border);
+    color: var(--nt-green-dark);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .revisao-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+  }
+  .revisao-item:last-child { border-bottom: none; }
+  .revisao-label {
+    color: #888;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+  .revisao-valor {
+    font-weight: 600;
+    color: var(--nt-dark);
+    text-align: right;
+  }
 </style>
 </head>
 <body>
@@ -332,14 +432,80 @@
 
 <div class="container">
   <div id="statusMsg" class="status-msg"></div>
-  <div id="caixasContainer"></div>
-  <button type="button" class="btn-add-caixa" onclick="adicionarCaixa()">+ Adicionar Caixa de Emenda</button>
+
+  <div class="step-indicator" id="stepIndicator">
+    <div class="step-dot" data-step="1">
+      <span class="step-num">1</span>
+      <span class="step-label">Equipe</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-dot" data-step="2">
+      <span class="step-num">2</span>
+      <span class="step-label">Cliente</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-dot" data-step="3">
+      <span class="step-num">3</span>
+      <span class="step-label">Emendas</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step-dot" data-step="4">
+      <span class="step-num">4</span>
+      <span class="step-label">Conferência</span>
+    </div>
+  </div>
+
+  <!-- Sessão 1: Quem está preenchendo -->
+  <div class="sessao" id="sessao1">
+    <div class="caixa">
+      <div class="caixa-header"><h2><span class="badge">1</span> Empresa e Técnico</h2></div>
+      <div class="field" style="margin-bottom:14px">
+        <label>Empresa</label>
+        <input type="text" id="preenchimentoEmpresa">
+      </div>
+      <div class="field">
+        <label>Técnico</label>
+        <input type="text" id="preenchimentoTecnico">
+      </div>
+    </div>
+  </div>
+
+  <!-- Sessão 2: Dados do cliente -->
+  <div class="sessao" id="sessao2" style="display:none">
+    <div class="caixa">
+      <div class="caixa-header"><h2><span class="badge">2</span> Dados do Cliente</h2></div>
+      <div class="field" style="margin-bottom:14px">
+        <label>Nome do Cliente</label>
+        <input type="text" id="clienteNome">
+      </div>
+      <div class="field" style="margin-bottom:14px">
+        <label>Etiqueta do Cliente</label>
+        <input type="text" id="clienteEtiqueta">
+      </div>
+      <div class="field">
+        <label>Cidade</label>
+        <input type="text" id="clienteCidade">
+      </div>
+    </div>
+  </div>
+
+  <!-- Sessão 3: Localização + cabo/fibra -->
+  <div class="sessao" id="sessao3" style="display:none">
+    <div id="caixasContainer"></div>
+    <button type="button" class="btn-add-caixa" onclick="adicionarCaixa()">+ Adicionar Caixa de Emenda</button>
+  </div>
+
+  <!-- Sessão 4: Conferência -->
+  <div class="sessao" id="sessao4" style="display:none">
+    <div id="revisaoContainer"></div>
+  </div>
 </div>
 
 <div class="footer-bar">
   <div class="footer-inner">
-    <span class="resumo-count" id="resumoCount">0 caixa(s) · 0 fibra(s)</span>
-    <button type="button" class="btn-enviar" id="btnEnviar" onclick="enviarTudo()">Enviar Todos os Registros</button>
+    <button type="button" class="btn-voltar" id="btnVoltar" onclick="voltarStep()" style="display:none">← Voltar</button>
+    <span class="resumo-count" id="resumoCount" style="display:none"></span>
+    <button type="button" class="btn-enviar" id="btnAvancar" onclick="avancarStep()">Avançar</button>
   </div>
 </div>
 
@@ -352,7 +518,9 @@
 
   document.getElementById('dataAtual').textContent = new Date().toLocaleDateString('pt-BR');
 
+  let step = 1;
   let caixaSeq = 0;
+  let conexaoSeq = 0;
   let fibraSeq = 0;
 
   function novaFibra() {
@@ -360,16 +528,23 @@
     return { id: 'f' + fibraSeq, fibraA: '', fibraB: '' };
   }
 
+  function novaConexao() {
+    conexaoSeq++;
+    return {
+      id: 'x' + conexaoSeq,
+      tipoConexao: '',
+      caboA: '',
+      caboB: '',
+      fibras: [novaFibra()]
+    };
+  }
+
   function novaCaixa() {
     caixaSeq++;
     return {
       id: 'c' + caixaSeq,
-      etiqueta: '',
-      cidade: '',
       localizacao: '',
-      caboA: '',
-      caboB: '',
-      fibras: [novaFibra()]
+      conexoes: [novaConexao()]
     };
   }
 
@@ -379,18 +554,32 @@
     caixas.forEach(caixa => {
       const base = document.getElementById('caixa_' + caixa.id);
       if (!base) return;
-      caixa.etiqueta = base.querySelector('[data-field="etiqueta"]').value;
-      caixa.cidade = base.querySelector('[data-field="cidade"]').value;
       caixa.localizacao = base.querySelector('[data-field="localizacao"]').value;
-      caixa.caboA = base.querySelector('[data-field="caboA"]').value;
-      caixa.caboB = base.querySelector('[data-field="caboB"]').value;
-      caixa.fibras.forEach(fibra => {
-        const linha = document.getElementById('fibra_' + fibra.id);
-        if (!linha) return;
-        fibra.fibraA = linha.querySelector('[data-field="fibraA"]').value;
-        fibra.fibraB = linha.querySelector('[data-field="fibraB"]').value;
+      caixa.conexoes.forEach(conexao => {
+        const baseConexao = document.getElementById('conexao_' + conexao.id);
+        if (!baseConexao) return;
+        const tipoSel = baseConexao.querySelector('[data-field="tipoConexao"]');
+        if (tipoSel) conexao.tipoConexao = tipoSel.value;
+        const campoA = baseConexao.querySelector('[data-field="caboA"]');
+        const campoB = baseConexao.querySelector('[data-field="caboB"]');
+        if (campoA) conexao.caboA = campoA.value;
+        if (campoB) conexao.caboB = campoB.value;
+        conexao.fibras.forEach(fibra => {
+          const linha = document.getElementById('fibra_' + fibra.id);
+          if (!linha) return;
+          fibra.fibraA = linha.querySelector('[data-field="fibraA"]').value;
+          fibra.fibraB = linha.querySelector('[data-field="fibraB"]').value;
+        });
       });
     });
+  }
+
+  function mudarTipoConexao(caixaId, conexaoId, valor) {
+    sincronizarModelo();
+    const caixa = caixas.find(c => c.id === caixaId);
+    const conexao = caixa.conexoes.find(x => x.id === conexaoId);
+    conexao.tipoConexao = valor;
+    render();
   }
 
   function adicionarCaixa() {
@@ -409,26 +598,47 @@
     render();
   }
 
-  function adicionarFibra(caixaId) {
+  function adicionarConexao(caixaId) {
     sincronizarModelo();
     const caixa = caixas.find(c => c.id === caixaId);
-    caixa.fibras.push(novaFibra());
+    caixa.conexoes.push(novaConexao());
     render();
   }
 
-  function removerFibra(caixaId, fibraId) {
+  function removerConexao(caixaId, conexaoId) {
     sincronizarModelo();
     const caixa = caixas.find(c => c.id === caixaId);
-    if (caixa.fibras.length <= 1) {
-      alert('É necessário manter ao menos uma fibra por caixa.');
+    if (caixa.conexoes.length <= 1) {
+      alert('É necessário manter ao menos uma conexão por caixa.');
       return;
     }
-    caixa.fibras = caixa.fibras.filter(f => f.id !== fibraId);
+    caixa.conexoes = caixa.conexoes.filter(x => x.id !== conexaoId);
+    render();
+  }
+
+  function adicionarFibra(caixaId, conexaoId) {
+    sincronizarModelo();
+    const caixa = caixas.find(c => c.id === caixaId);
+    const conexao = caixa.conexoes.find(x => x.id === conexaoId);
+    conexao.fibras.push(novaFibra());
+    render();
+  }
+
+  function removerFibra(caixaId, conexaoId, fibraId) {
+    sincronizarModelo();
+    const caixa = caixas.find(c => c.id === caixaId);
+    const conexao = caixa.conexoes.find(x => x.id === conexaoId);
+    if (conexao.fibras.length <= 1) {
+      alert('É necessário manter ao menos uma fusão por conexão.');
+      return;
+    }
+    conexao.fibras = conexao.fibras.filter(f => f.id !== fibraId);
     render();
   }
 
   function contarFibrasTotal() {
-    return caixas.reduce((acc, c) => acc + c.fibras.length, 0);
+    return caixas.reduce((acc, c) =>
+      acc + c.conexoes.reduce((acc2, x) => acc2 + x.fibras.length, 0), 0);
   }
 
   function render() {
@@ -440,37 +650,68 @@
       div.className = 'caixa';
       div.id = 'caixa_' + caixa.id;
 
-      const fibrasHtml = caixa.fibras.map((fibra, fidx) => `
-        <div class="fibra-row" id="fibra_${fibra.id}">
-          <div class="fibra-num">${fidx + 1}</div>
-          <div class="field">
-            <label>Fibra</label>
-            <input type="text" data-field="fibraA" value="${escapeAttr(fibra.fibraA)}">
+      const conexoesHtml = caixa.conexoes.map((conexao, xidx) => {
+        const fibrasHtml = conexao.fibras.map((fibra, fidx) => `
+          <div class="fibra-row" id="fibra_${fibra.id}">
+            <div class="fibra-num">${fidx + 1}</div>
+            <div class="field">
+              <label>Fibra</label>
+              <input type="text" data-field="fibraA" value="${escapeAttr(fibra.fibraA)}">
+            </div>
+            <div class="pair-x">X</div>
+            <div class="field">
+              <label>Fibra</label>
+              <input type="text" data-field="fibraB" value="${escapeAttr(fibra.fibraB)}">
+            </div>
+            <button type="button" class="btn-remove-fibra" onclick="removerFibra('${caixa.id}','${conexao.id}','${fibra.id}')" title="Remover fusão">&times;</button>
           </div>
-          <div class="pair-x">X</div>
-          <div class="field">
-            <label>Fibra</label>
-            <input type="text" data-field="fibraB" value="${escapeAttr(fibra.fibraB)}">
+        `).join('');
+
+        return `
+          <div class="conexao-bloco" id="conexao_${conexao.id}">
+            <div class="conexao-header">
+              <span class="conexao-titulo">Conexão ${xidx + 1}</span>
+              ${caixa.conexoes.length > 1 ? `<button type="button" class="btn-remove-caixa" onclick="removerConexao('${caixa.id}','${conexao.id}')">Remover conexão</button>` : ''}
+            </div>
+
+            <div class="field" style="margin-bottom:14px">
+              <label>Tipo de Conexão</label>
+              <select data-field="tipoConexao" onchange="mudarTipoConexao('${caixa.id}','${conexao.id}', this.value)">
+                <option value="" ${conexao.tipoConexao === '' ? 'selected' : ''}>Selecione...</option>
+                <option value="splitter_existente" ${conexao.tipoConexao === 'splitter_existente' ? 'selected' : ''}>Splitter existente com cabo existente</option>
+                <option value="cabo_existente" ${conexao.tipoConexao === 'cabo_existente' ? 'selected' : ''}>Cabo com Cabo</option>
+                <option value="novo_splitter" ${conexao.tipoConexao === 'novo_splitter' ? 'selected' : ''}>Instalação de novo splitter</option>
+                <option value="splitter_splitter" ${conexao.tipoConexao === 'splitter_splitter' ? 'selected' : ''}>Splitter com Splitter</option>
+              </select>
+            </div>
+
+            ${conexao.tipoConexao ? `
+            <div class="cabo-row">
+              <div class="field">
+                <label>${(conexao.tipoConexao === 'splitter_existente' || conexao.tipoConexao === 'splitter_splitter') ? 'Splitter' : 'Cabo'}</label>
+                <input type="text" data-field="caboA" value="${escapeAttr(conexao.caboA)}">
+              </div>
+              <div class="pair-x">X</div>
+              <div class="field">
+                <label>${(conexao.tipoConexao === 'novo_splitter' || conexao.tipoConexao === 'splitter_splitter') ? 'Splitter' : 'Cabo'}</label>
+                <input type="text" data-field="caboB" value="${escapeAttr(conexao.caboB)}">
+              </div>
+            </div>
+            ` : ''}
+
+            <div class="fibras-section">
+              <div class="fibras-title">Fusões desta conexão</div>
+              ${fibrasHtml}
+              <button type="button" class="btn-add-fibra" onclick="adicionarFibra('${caixa.id}','${conexao.id}')">+ Adicionar Fusão</button>
+            </div>
           </div>
-          <button type="button" class="btn-remove-fibra" onclick="removerFibra('${caixa.id}','${fibra.id}')" title="Remover fibra">&times;</button>
-        </div>
-      `).join('');
+        `;
+      }).join('');
 
       div.innerHTML = `
         <div class="caixa-header">
           <h2><span class="badge">${idx + 1}</span> Caixa de Emenda</h2>
           ${caixas.length > 1 ? `<button type="button" class="btn-remove-caixa" onclick="removerCaixa('${caixa.id}')">Remover caixa</button>` : ''}
-        </div>
-
-        <div class="grid2">
-          <div class="field">
-            <label>Etiqueta</label>
-            <input type="text" data-field="etiqueta" value="${escapeAttr(caixa.etiqueta)}">
-          </div>
-          <div class="field">
-            <label>Cidade</label>
-            <input type="text" data-field="cidade" value="${escapeAttr(caixa.cidade)}">
-          </div>
         </div>
 
         <div class="localizacao-row">
@@ -481,30 +722,16 @@
           <button type="button" class="btn-gps" onclick="capturarLocalizacao('${caixa.id}')">📍 Usar GPS</button>
         </div>
 
-        <div class="cabo-row">
-          <div class="field">
-            <label>Cabo</label>
-            <input type="text" data-field="caboA" value="${escapeAttr(caixa.caboA)}">
-          </div>
-          <div class="pair-x">X</div>
-          <div class="field">
-            <label>Cabo</label>
-            <input type="text" data-field="caboB" value="${escapeAttr(caixa.caboB)}">
-          </div>
-        </div>
+        ${conexoesHtml}
 
-        <div class="fibras-section">
-          <div class="fibras-title">Fibras desta caixa</div>
-          ${fibrasHtml}
-          <button type="button" class="btn-add-fibra" onclick="adicionarFibra('${caixa.id}')">+ Adicionar Fibra</button>
-        </div>
+        <button type="button" class="btn-add-fibra" onclick="adicionarConexao('${caixa.id}')">+ Adicionar Nova Conexão</button>
       `;
 
       container.appendChild(div);
     });
 
     document.getElementById('resumoCount').textContent =
-      caixas.length + ' caixa(s) · ' + contarFibrasTotal() + ' fibra(s)';
+      caixas.length + ' caixa(s) · ' + contarFibrasTotal() + ' fusão(ões)';
   }
 
   function capturarLocalizacao(caixaId) {
@@ -559,23 +786,153 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  /* ---------- NAVEGAÇÃO ENTRE SESSÕES ---------- */
+  function atualizarIndicadorEBotoes() {
+    document.querySelectorAll('.step-dot').forEach(dot => {
+      const n = Number(dot.dataset.step);
+      dot.classList.toggle('active', n === step);
+      dot.classList.toggle('done', n < step);
+    });
+
+    document.getElementById('sessao1').style.display = step === 1 ? 'block' : 'none';
+    document.getElementById('sessao2').style.display = step === 2 ? 'block' : 'none';
+    document.getElementById('sessao3').style.display = step === 3 ? 'block' : 'none';
+    document.getElementById('sessao4').style.display = step === 4 ? 'block' : 'none';
+
+    document.getElementById('btnVoltar').style.display = step === 1 ? 'none' : 'inline-block';
+
+    const resumo = document.getElementById('resumoCount');
+    if (step === 3 || step === 4) {
+      resumo.style.display = 'inline';
+      resumo.textContent = caixas.length + ' caixa(s) · ' + contarFibrasTotal() + ' fusão(ões)';
+    } else {
+      resumo.style.display = 'none';
+    }
+
+    const btnAvancar = document.getElementById('btnAvancar');
+    if (step === 3) btnAvancar.textContent = 'Avançar para Conferência';
+    else if (step === 4) btnAvancar.textContent = 'Enviar Todos os Registros';
+    else btnAvancar.textContent = 'Avançar';
+  }
+
+  function avancarStep() {
+    if (step === 1) {
+      step = 2;
+    } else if (step === 2) {
+      step = 3;
+    } else if (step === 3) {
+      sincronizarModelo();
+      step = 4;
+      renderRevisao();
+    } else if (step === 4) {
+      enviarTudo();
+      return;
+    }
+    atualizarIndicadorEBotoes();
+  }
+
+  function voltarStep() {
+    if (step === 4) step = 3;
+    else if (step === 3) step = 2;
+    else if (step === 2) step = 1;
+    atualizarIndicadorEBotoes();
+  }
+
+  function renderRevisao() {
+    const empresa = document.getElementById('preenchimentoEmpresa').value.trim();
+    const tecnico = document.getElementById('preenchimentoTecnico').value.trim();
+    const nome = document.getElementById('clienteNome').value.trim();
+    const etiqueta = document.getElementById('clienteEtiqueta').value.trim();
+    const cidade = document.getElementById('clienteCidade').value.trim();
+
+    let html = `
+      <div class="caixa">
+        <div class="caixa-header"><h2><span class="badge">✓</span> Empresa e Técnico</h2></div>
+        <div class="revisao-item"><span class="revisao-label">Empresa</span><span class="revisao-valor">${escapeAttr(empresa) || '—'}</span></div>
+        <div class="revisao-item"><span class="revisao-label">Técnico</span><span class="revisao-valor">${escapeAttr(tecnico) || '—'}</span></div>
+      </div>
+      <div class="caixa">
+        <div class="caixa-header"><h2><span class="badge">✓</span> Dados do Cliente</h2></div>
+        <div class="revisao-item"><span class="revisao-label">Nome do Cliente</span><span class="revisao-valor">${escapeAttr(nome) || '—'}</span></div>
+        <div class="revisao-item"><span class="revisao-label">Etiqueta do Cliente</span><span class="revisao-valor">${escapeAttr(etiqueta) || '—'}</span></div>
+        <div class="revisao-item"><span class="revisao-label">Cidade</span><span class="revisao-valor">${escapeAttr(cidade) || '—'}</span></div>
+      </div>
+    `;
+
+    caixas.forEach((caixa, idx) => {
+      const tipoLabels = {
+        splitter_existente: 'Splitter existente com cabo existente',
+        cabo_existente: 'Cabo com Cabo',
+        novo_splitter: 'Instalação de novo splitter',
+        splitter_splitter: 'Splitter com Splitter'
+      };
+
+      const conexoesHtml = caixa.conexoes.map((conexao, xidx) => {
+        const fibrasHtml = conexao.fibras.map((f, i) => `
+          <div class="revisao-item">
+            <span class="revisao-label">Fusão ${i + 1}</span>
+            <span class="revisao-valor">${escapeAttr(f.fibraA) || '—'} <strong>X</strong> ${escapeAttr(f.fibraB) || '—'}</span>
+          </div>
+        `).join('');
+
+        const tipoLabel = tipoLabels[conexao.tipoConexao] || '—';
+        const labelPrimeiro = (conexao.tipoConexao === 'splitter_existente' || conexao.tipoConexao === 'splitter_splitter') ? 'Splitter' : 'Cabo';
+        const labelSegundo = (conexao.tipoConexao === 'novo_splitter' || conexao.tipoConexao === 'splitter_splitter') ? 'Splitter' : 'Cabo';
+
+        return `
+          <div class="conexao-bloco">
+            <div class="conexao-header"><span class="conexao-titulo">Conexão ${xidx + 1}</span></div>
+            <div class="revisao-item"><span class="revisao-label">Tipo de Conexão</span><span class="revisao-valor">${tipoLabel}</span></div>
+            <div class="revisao-item"><span class="revisao-label">${labelPrimeiro} × ${labelSegundo}</span><span class="revisao-valor">${escapeAttr(conexao.caboA) || '—'} <strong>X</strong> ${escapeAttr(conexao.caboB) || '—'}</span></div>
+            <div class="fibras-section">
+              <div class="fibras-title">Fusões (${conexao.fibras.length})</div>
+              ${fibrasHtml}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      html += `
+        <div class="caixa">
+          <div class="caixa-header"><h2><span class="badge">${idx + 1}</span> Caixa de Emenda</h2></div>
+          <div class="revisao-item"><span class="revisao-label">Localização</span><span class="revisao-valor">${escapeAttr(caixa.localizacao) || '—'}</span></div>
+          ${conexoesHtml}
+        </div>
+      `;
+    });
+
+    document.getElementById('revisaoContainer').innerHTML = html;
+  }
+
   async function enviarTudo() {
     sincronizarModelo();
 
+    const empresa = document.getElementById('preenchimentoEmpresa').value.trim();
+    const tecnico = document.getElementById('preenchimentoTecnico').value.trim();
+    const nomeCliente = document.getElementById('clienteNome').value.trim();
+    const etiquetaCliente = document.getElementById('clienteEtiqueta').value.trim();
+    const cidadeCliente = document.getElementById('clienteCidade').value.trim();
+
     const registros = [];
     caixas.forEach(caixa => {
-      caixa.fibras.forEach(fibra => {
-        const registro = {
-          etiqueta: (caixa.etiqueta || '').trim(),
-          cidade: (caixa.cidade || '').trim(),
-          localizacao: (caixa.localizacao || '').trim(),
-          cabo_a: (caixa.caboA || '').trim(),
-          cabo_b: (caixa.caboB || '').trim(),
-          fibra_a: (fibra.fibraA || '').trim(),
-          fibra_b: (fibra.fibraB || '').trim()
-        };
-        const algumPreenchido = Object.values(registro).some(v => v !== '');
-        if (algumPreenchido) registros.push(registro);
+      caixa.conexoes.forEach(conexao => {
+        conexao.fibras.forEach(fibra => {
+          const registro = {
+            empresa: empresa,
+            tecnico: tecnico,
+            nome_cliente: nomeCliente,
+            etiqueta: etiquetaCliente,
+            cidade: cidadeCliente,
+            localizacao: (caixa.localizacao || '').trim(),
+            tipo_conexao: conexao.tipoConexao || '',
+            cabo_a: (conexao.caboA || '').trim(),
+            cabo_b: (conexao.caboB || '').trim(),
+            fibra_a: (fibra.fibraA || '').trim(),
+            fibra_b: (fibra.fibraB || '').trim()
+          };
+          const algumPreenchido = Object.values(registro).some(v => v !== '');
+          if (algumPreenchido) registros.push(registro);
+        });
       });
     });
 
@@ -584,29 +941,39 @@
       return;
     }
 
-    const btn = document.getElementById('btnEnviar');
+    const btn = document.getElementById('btnAvancar');
     btn.disabled = true;
     btn.textContent = 'Enviando...';
 
     const { error } = await supabaseClient.from(TABLE_NAME).insert(registros);
 
     btn.disabled = false;
-    btn.textContent = 'Enviar Todos os Registros';
 
     if (error) {
       console.error(error);
+      btn.textContent = 'Enviar Todos os Registros';
       mostrarStatus('error', 'Erro ao enviar. Verifique sua conexão e tente novamente.');
       return;
     }
 
     mostrarStatus('success', registros.length + ' registro(s) enviado(s) com sucesso!');
+
+    document.getElementById('preenchimentoEmpresa').value = '';
+    document.getElementById('preenchimentoTecnico').value = '';
+    document.getElementById('clienteNome').value = '';
+    document.getElementById('clienteEtiqueta').value = '';
+    document.getElementById('clienteCidade').value = '';
     caixaSeq = 0;
+    conexaoSeq = 0;
     fibraSeq = 0;
     caixas = [novaCaixa()];
+    step = 1;
     render();
+    atualizarIndicadorEBotoes();
   }
 
   render();
+  atualizarIndicadorEBotoes();
 </script>
 
 </body>
