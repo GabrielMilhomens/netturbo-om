@@ -952,7 +952,7 @@
     if (error) {
       console.error(error);
       btn.textContent = 'Enviar Todos os Registros';
-      mostrarStatus('error', 'Erro ao enviar. Verifique sua conexão e tente novamente.');
+      mostrarStatus('error', 'Erro ao enviar: ' + (error.message || 'erro desconhecido') + (error.hint ? ' — ' + error.hint : ''));
       return;
     }
 
