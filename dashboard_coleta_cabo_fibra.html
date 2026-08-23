@@ -194,9 +194,13 @@ a.map-link:hover{text-decoration:underline}
         <thead>
           <tr>
             <th>Data/Hora</th>
+            <th>Empresa</th>
+            <th>Técnico</th>
+            <th>Nome do Cliente</th>
             <th>Etiqueta</th>
             <th>Cidade</th>
             <th>Localização</th>
+            <th>Tipo de Conexão</th>
             <th>Cabo A</th>
             <th>Fibra A</th>
             <th>Cabo B</th>
@@ -381,7 +385,7 @@ a.map-link:hover{text-decoration:underline}
       if (cidadeSelecionada && (r.cidade || '').trim() !== cidadeSelecionada) return false;
       if (etiquetaSelecionada && (r.etiqueta || '').trim() !== etiquetaSelecionada) return false;
       if (termo) {
-        const bate = [r.etiqueta, r.cidade, r.localizacao, r.cabo_a, r.cabo_b, r.fibra_a, r.fibra_b]
+        const bate = [r.empresa, r.tecnico, r.nome_cliente, r.etiqueta, r.cidade, r.localizacao, traduzirTipoConexao(r.tipo_conexao), r.cabo_a, r.cabo_b, r.fibra_a, r.fibra_b]
           .some(v => (v || '').toLowerCase().includes(termo));
         if (!bate) return false;
       }
@@ -458,9 +462,13 @@ a.map-link:hover{text-decoration:underline}
 
       tr.innerHTML = `
         <td>${dataFormatada}</td>
+        <td>${escapeHtml(r.empresa)}</td>
+        <td>${escapeHtml(r.tecnico)}</td>
+        <td>${escapeHtml(r.nome_cliente)}</td>
         <td><span class="pop-badge">${escapeHtml(r.etiqueta)}</span></td>
         <td>${escapeHtml(r.cidade)}</td>
         <td>${localizacaoHtml}</td>
+        <td>${escapeHtml(traduzirTipoConexao(r.tipo_conexao))}</td>
         <td>${escapeHtml(r.cabo_a)}</td>
         <td>${escapeHtml(r.fibra_a)}</td>
         <td>${escapeHtml(r.cabo_b)}</td>
@@ -591,6 +599,16 @@ a.map-link:hover{text-decoration:underline}
     return div.innerHTML;
   }
 
+  function traduzirTipoConexao(tipo) {
+    const labels = {
+      splitter_existente: 'Splitter existente c/ cabo existente',
+      cabo_existente: 'Cabo com Cabo',
+      novo_splitter: 'Instalação de novo splitter',
+      splitter_splitter: 'Splitter com Splitter'
+    };
+    return labels[tipo] || '—';
+  }
+
   function escapeAttr(str) {
     if (!str) return '';
     return String(str).replace(/"/g, '&quot;');
@@ -605,9 +623,13 @@ a.map-link:hover{text-decoration:underline}
     const statusLabels = { pendente: 'Pendente', aprovado: 'Aprovado', cadastrado: 'Cadastrado' };
     const dados = registrosFiltrados.map(r => ({
       'Data/Hora': r.created_at ? new Date(r.created_at).toLocaleString('pt-BR') : '',
+      'Empresa': r.empresa || '',
+      'Técnico': r.tecnico || '',
+      'Nome do Cliente': r.nome_cliente || '',
       'Etiqueta': r.etiqueta || '',
       'Cidade': r.cidade || '',
       'Localização': r.localizacao || '',
+      'Tipo de Conexão': traduzirTipoConexao(r.tipo_conexao),
       'Cabo A': r.cabo_a || '',
       'Fibra A': r.fibra_a || '',
       'Cabo B': r.cabo_b || '',
@@ -619,7 +641,7 @@ a.map-link:hover{text-decoration:underline}
 
     const ws = XLSX.utils.json_to_sheet(dados);
     ws['!cols'] = [
-      { wch: 18 }, { wch: 14 }, { wch: 16 }, { wch: 32 },
+      { wch: 16 }, { wch: 16 }, { wch: 18 }, { wch: 18 }, { wch: 14 }, { wch: 16 }, { wch: 32 }, { wch: 28 },
       { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 12 },
       { wch: 14 }, { wch: 14 }
     ];
