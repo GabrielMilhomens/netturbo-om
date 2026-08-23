@@ -52,6 +52,33 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#ecf0eb;color:var(--g800
 .btn-ghost{background:var(--g100);color:var(--g800)}
 .btn-ghost:hover{background:var(--g300)}
 
+/* Colunas opcionais ocultas por padrão (exceto localizacao) */
+.col-empresa, .col-tecnico, .col-nome_cliente, .col-tipo_conexao, .col-responsaveis { display: none; }
+.tabela-mostrar-empresa .col-empresa,
+.tabela-mostrar-tecnico .col-tecnico,
+.tabela-mostrar-nome_cliente .col-nome_cliente,
+.tabela-mostrar-tipo_conexao .col-tipo_conexao,
+.tabela-mostrar-responsaveis .col-responsaveis { display: table-cell; }
+.tabela-esconder-localizacao .col-localizacao { display: none; }
+
+.colunas-panel{
+  display:none;
+  position:absolute;
+  top:calc(100% + 6px);
+  right:0;
+  background:#fff;
+  border:1px solid var(--bdr);
+  border-radius:8px;
+  box-shadow:0 6px 20px rgba(0,0,0,.12);
+  padding:12px 14px;
+  z-index:50;
+  min-width:220px;
+}
+.colunas-panel.show{display:block}
+.colunas-panel-title{font-size:11px;font-weight:700;color:var(--g500);text-transform:uppercase;margin-bottom:8px}
+.colunas-panel label{display:flex;align-items:center;gap:8px;font-size:13px;padding:5px 0;cursor:pointer}
+.colunas-panel input{cursor:pointer}
+
 /* TABLE CARD */
 .card{background:#fff;border-radius:10px;border:1px solid var(--bdr);overflow:hidden;box-shadow:0 2px 8px rgba(26,92,55,.07)}
 .card-hd{padding:14px 20px;border-bottom:1px solid var(--bdr);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
@@ -181,6 +208,18 @@ a.map-link:hover{text-decoration:underline}
       </select>
     </div>
     <button class="btn btn-ghost" onclick="carregarDados()">↺ Atualizar</button>
+    <div style="position:relative">
+      <button class="btn btn-ghost" onclick="toggleColunasPanel()">☰ Colunas</button>
+      <div id="colunasPanel" class="colunas-panel">
+        <div class="colunas-panel-title">Mostrar colunas extras</div>
+        <label><input type="checkbox" data-col="nome_cliente" onchange="alternarColuna(this)"> Nome do Cliente</label>
+        <label><input type="checkbox" data-col="localizacao" onchange="alternarColuna(this)" checked> Localização</label>
+        <label><input type="checkbox" data-col="tipo_conexao" onchange="alternarColuna(this)"> Tipo de Conexão</label>
+        <label><input type="checkbox" data-col="empresa" onchange="alternarColuna(this)"> Empresa</label>
+        <label><input type="checkbox" data-col="tecnico" onchange="alternarColuna(this)"> Técnico</label>
+        <label><input type="checkbox" data-col="responsaveis" onchange="alternarColuna(this)"> Aprovado/Cadastrado por</label>
+      </div>
+    </div>
     <button class="btn btn-primary" onclick="exportarExcel()">⬇ Baixar Excel</button>
   </div>
 
@@ -194,20 +233,17 @@ a.map-link:hover{text-decoration:underline}
         <thead>
           <tr>
             <th>Data/Hora</th>
-            <th>Empresa</th>
-            <th>Técnico</th>
-            <th>Nome do Cliente</th>
+            <th class="col-empresa">Empresa</th>
+            <th class="col-tecnico">Técnico</th>
+            <th class="col-nome_cliente">Nome do Cliente</th>
             <th>Etiqueta</th>
             <th>Cidade</th>
-            <th>Localização</th>
-            <th>Tipo de Conexão</th>
-            <th>Cabo A</th>
-            <th>Fibra A</th>
-            <th>Cabo B</th>
-            <th>Fibra B</th>
+            <th class="col-localizacao">Localização</th>
+            <th class="col-tipo_conexao">Tipo de Conexão</th>
+            <th>Conexão A</th>
+            <th>Conexão B</th>
             <th>Status</th>
-            <th>Aprovado por</th>
-            <th>Cadastrado por</th>
+            <th class="col-responsaveis">Aprovado/Cadastrado por</th>
             <th id="th-acoes" style="display:none">Ações</th>
           </tr>
         </thead>
@@ -460,22 +496,23 @@ a.map-link:hover{text-decoration:underline}
         acoesHtml += '</div>';
       }
 
+      const responsavelHtml = r.status === 'cadastrado'
+        ? `Cadastrado: ${escapeHtml(r.cadastrado_por) || '—'}`
+        : (r.aprovado_por ? `Aprovado: ${escapeHtml(r.aprovado_por)}` : '—');
+
       tr.innerHTML = `
         <td>${dataFormatada}</td>
-        <td>${escapeHtml(r.empresa)}</td>
-        <td>${escapeHtml(r.tecnico)}</td>
-        <td>${escapeHtml(r.nome_cliente)}</td>
+        <td class="col-empresa">${escapeHtml(r.empresa)}</td>
+        <td class="col-tecnico">${escapeHtml(r.tecnico)}</td>
+        <td class="col-nome_cliente">${escapeHtml(r.nome_cliente)}</td>
         <td><span class="pop-badge">${escapeHtml(r.etiqueta)}</span></td>
         <td>${escapeHtml(r.cidade)}</td>
-        <td>${localizacaoHtml}</td>
-        <td>${escapeHtml(traduzirTipoConexao(r.tipo_conexao))}</td>
-        <td>${escapeHtml(r.cabo_a)}</td>
-        <td>${escapeHtml(r.fibra_a)}</td>
-        <td>${escapeHtml(r.cabo_b)}</td>
-        <td>${escapeHtml(r.fibra_b)}</td>
+        <td class="col-localizacao">${localizacaoHtml}</td>
+        <td class="col-tipo_conexao">${escapeHtml(traduzirTipoConexao(r.tipo_conexao))}</td>
+        <td>${escapeHtml(r.cabo_a)}<br><small style="color:#999">${escapeHtml(r.fibra_a) || '—'}</small></td>
+        <td>${escapeHtml(r.cabo_b)}<br><small style="color:#999">${escapeHtml(r.fibra_b) || '—'}</small></td>
         <td>${statusHtml}</td>
-        <td>${escapeHtml(r.aprovado_por) || '—'}</td>
-        <td>${escapeHtml(r.cadastrado_por) || '—'}</td>
+        <td class="col-responsaveis">${responsavelHtml}</td>
         <td style="${perfilAtual === 'fiscalizacao' ? 'display:none' : ''}">${acoesHtml}</td>
       `;
       corpo.appendChild(tr);
@@ -608,6 +645,54 @@ a.map-link:hover{text-decoration:underline}
     };
     return labels[tipo] || '—';
   }
+
+  /* ---------- COLUNAS VISÍVEIS ---------- */
+  const COLUNAS_OPCIONAIS = ['empresa', 'tecnico', 'nome_cliente', 'tipo_conexao', 'responsaveis'];
+
+  function aplicarClassesColunas() {
+    const tblWrap = document.querySelector('.tbl-wrap');
+    COLUNAS_OPCIONAIS.forEach(col => {
+      const ligada = localStorage.getItem('coluna_' + col) === '1';
+      tblWrap.classList.toggle('tabela-mostrar-' + col, ligada);
+    });
+    const localizacaoOculta = localStorage.getItem('coluna_localizacao') === '0';
+    tblWrap.classList.toggle('tabela-esconder-localizacao', localizacaoOculta);
+  }
+
+  function carregarEstadoCheckboxes() {
+    document.querySelectorAll('#colunasPanel input[type="checkbox"]').forEach(chk => {
+      const col = chk.dataset.col;
+      if (col === 'localizacao') {
+        chk.checked = localStorage.getItem('coluna_localizacao') !== '0';
+      } else {
+        chk.checked = localStorage.getItem('coluna_' + col) === '1';
+      }
+    });
+  }
+
+  function alternarColuna(chk) {
+    const col = chk.dataset.col;
+    if (col === 'localizacao') {
+      localStorage.setItem('coluna_localizacao', chk.checked ? '1' : '0');
+    } else {
+      localStorage.setItem('coluna_' + col, chk.checked ? '1' : '0');
+    }
+    aplicarClassesColunas();
+  }
+
+  function toggleColunasPanel() {
+    document.getElementById('colunasPanel').classList.toggle('show');
+  }
+
+  document.addEventListener('click', (e) => {
+    const painel = document.getElementById('colunasPanel');
+    if (!painel.contains(e.target) && !e.target.closest('button[onclick="toggleColunasPanel()"]')) {
+      painel.classList.remove('show');
+    }
+  });
+
+  carregarEstadoCheckboxes();
+  aplicarClassesColunas();
 
   function escapeAttr(str) {
     if (!str) return '';
