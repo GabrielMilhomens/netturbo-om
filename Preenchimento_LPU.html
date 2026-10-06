@@ -220,8 +220,8 @@ textarea{resize:vertical;min-height:60px}
             <option value="3.1.1.2.05.0007 - Serviços de Instalação REDE - CONSTRUÇÃO DE REDE">3.1.1.2.05.0007 - Instalação REDE - CONSTRUÇÃO DE REDE</option>
             <option value="3.1.1.2.05.0103 - Serviços de Melhoria REDE - REPARO PROGRAMADO DE REDE">3.1.1.2.05.0103 - Melhoria REDE - REPARO PROGRAMADO</option>
             <option value="3.1.1.2.05.0008 - Serviços de Manutenção REDE - REPARO EMERGENCIAL DE REDE (MANUTENÇÃO)">3.1.1.2.05.0008 - Manutenção REDE - REPARO EMERGENCIAL</option>
+            <option value="3.1.1.2.05.0008 - Serviços de Manutenção REDE - REPARO EMERGENCIAL DE REDE (MANUTENÇÃO SP)">3.1.1.2.05.0008 - Manutenção REDE - REPARO EMERGENCIAL (SP)</option>
             <option value="3.1.1.2.05.0006 - Serviços de Manutenção CLIENTE - REPARO EMERGENCIAL EM CLIENTES (MANUTENÇÃO)">3.1.1.2.05.0006 - Manutenção CLIENTE - REPARO EMERGENCIAL</option>
-            <option value="3.1.1.2.05.0006 - Serviços de Manutenção CLIENTE - REPARO EMERGENCIAL EM CLIENTES (MANUTENÇÃO SP)">3.1.1.2.05.0006 - Manutenção CLIENTE - REPARO EMERGENCIAL (SP)</option>
             <option value="3.1.1.2.05.0101 - Serviços Preventivos">3.1.1.2.05.0101 - Serviços Preventivos</option>
 	    <option value="3.1.1.2.05.0102 - Serviços de Retirada">3.1.1.2.05.0102 - Serviços de Retirada</option>
           </select>
@@ -491,16 +491,6 @@ const regrasFiltroCodigos = {
         especificos: [] 
     },
 
-    "3.1.1.2.05.0006 - Serviços de Manutenção CLIENTE - REPARO EMERGENCIAL EM CLIENTES (MANUTENÇÃO SP)": {
-        intervalos: [
-	    { inicio: 41, fim: 44 },
-            { inicio: 53, fim: 59 }, 
-            { inicio: 61, fim: 68 },
-	    { inicio: 76, fim: 82 },
-            { inicio: 85, fim: 87}
-        ],
-        especificos: [] 
-    },
 
     "3.1.1.2.05.0102 - Serviços de Retirada": {
         intervalos: [
@@ -522,6 +512,17 @@ const regrasFiltroCodigos = {
         especificos: []
     },
     "3.1.1.2.05.0008 - Serviços de Manutenção REDE - REPARO EMERGENCIAL DE REDE (MANUTENÇÃO)": {
+        intervalos: [
+            { inicio: 1, fim: 17 },
+            { inicio: 20, fim: 23 },
+            { inicio: 28, fim: 50 }, 
+            { inicio: 76, fim: 82},
+            { inicio: 84, fim: 88}
+        ],
+        especificos: []
+    },
+
+    "3.1.1.2.05.0008 - Serviços de Manutenção REDE - REPARO EMERGENCIAL DE REDE (MANUTENÇÃO SP)": {
         intervalos: [
             { inicio: 1, fim: 17 },
             { inicio: 20, fim: 23 },
